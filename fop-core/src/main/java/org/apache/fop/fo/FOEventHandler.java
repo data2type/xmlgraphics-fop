@@ -565,6 +565,24 @@ public abstract class FOEventHandler {
     }
 
     /**
+     * Closes the fo:retrieve-marker processing
+     * <p>The default implementation of this method does nothing.</p>
+     *
+     * @param retrieveMarker the fo:retrieve-marker element that is retrieving markers
+     */
+    public void closeMarker(RetrieveMarker retrieveMarker) {
+    }
+
+    /**
+     * Closes the fo:retrieve-marker processing
+     * <p>The default implementation of this method does nothing.</p>
+     *
+     * @param retrieveMarker the fo:retrieve-marker element that is retrieving markers
+     */
+    public void closeMarker(RetrieveTableMarker retrieveMarker) {
+    }
+
+    /**
      * Process the start of a retrieve-table-marker.
      *
      * @param retrieveTableMarker the retrieve-table-marker that is starting

@@ -19,13 +19,17 @@
 
 package org.apache.fop.accessibility.fo;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import javax.xml.XMLConstants;
 
+import org.apache.fop.accessibility.Accessibility;
+import org.apache.fop.fo.flow.table.*;
+import org.apache.fop.fo.properties.ListProperty;
+import org.apache.fop.layoutmgr.list.ListItemLayoutManager;
+import org.apache.fop.pdf.PDFStructElem;
+import org.apache.fop.pdf.StandardStructureTypes;
+import org.apache.tools.ant.util.StringUtils;
 import org.xml.sax.helpers.AttributesImpl;
 
 import org.apache.fop.accessibility.StructureTreeElement;
@@ -56,12 +60,6 @@ import org.apache.fop.fo.flow.PageNumberCitationLast;
 import org.apache.fop.fo.flow.RetrieveMarker;
 import org.apache.fop.fo.flow.RetrieveTableMarker;
 import org.apache.fop.fo.flow.Wrapper;
-import org.apache.fop.fo.flow.table.Table;
-import org.apache.fop.fo.flow.table.TableBody;
-import org.apache.fop.fo.flow.table.TableCell;
-import org.apache.fop.fo.flow.table.TableFooter;
-import org.apache.fop.fo.flow.table.TableHeader;
-import org.apache.fop.fo.flow.table.TableRow;
 import org.apache.fop.fo.pagination.Flow;
 import org.apache.fop.fo.pagination.LayoutMasterSet;
 import org.apache.fop.fo.pagination.PageSequence;
@@ -89,6 +87,10 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     private final Map<AbstractRetrieveMarker, State> states = new HashMap<AbstractRetrieveMarker, State>();
 
+    private final boolean autoPDFTag;
+    private final Properties roleProperties = new Properties();
+
+
     private static final class State {
 
         private final Stack<Table> tables;
@@ -106,8 +108,13 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     }
 
-    public StructureTreeEventTrigger(StructureTreeEventHandler structureTreeEventHandler) {
+    public StructureTreeEventTrigger
+            (StructureTreeEventHandler structureTreeEventHandler,final boolean autoPDFTag,
+             final Properties roleProperties) {
+
         this.structureTreeEventHandler = structureTreeEventHandler;
+        this.autoPDFTag = autoPDFTag;
+        this.roleProperties.putAll(roleProperties);
     }
 
     @Override
@@ -202,6 +209,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     @Override
     public void startBlock(Block bl) {
+
         CommonHyphenation hyphProperties = bl.getCommonHyphenation();
         AttributesImpl attributes = createLangAttribute(hyphProperties);
         startElement(bl, attributes);
@@ -420,7 +428,11 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     @Override
     public void startFootnoteBody(FootnoteBody body) {
-        startElement(body);
+        StructureTreeElement structElem = startElement(body);
+        if(structElem instanceof PDFStructElem && body.getId() != null){
+            PDFStructElem pdfStructElem = (PDFStructElem) structElem;
+            pdfStructElem.put("/ID", body.getId());
+        }
     }
 
     @Override
@@ -496,8 +508,13 @@ class StructureTreeEventTrigger extends FOEventHandler {
         endElement(foText);
     }
 
+    private LinkedList<Boolean> tagged = new LinkedList<Boolean>();
+    private FONode lastParagraph = null;
+    private String lastParagraphsLocalName = null;
+    private AttributesImpl lastParagraphsAttributes = null;
 
     private StructureTreeElement startElement(FONode node) {
+
         AttributesImpl attributes = new AttributesImpl();
         if (node instanceof Inline) {
             Inline in = (Inline)node;
@@ -506,6 +523,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
                         ExtensionElementMapping.STANDARD_PREFIX, in.getAbbreviation());
             }
         }
+
         return startElement(node, attributes);
     }
 
@@ -514,13 +532,30 @@ class StructureTreeEventTrigger extends FOEventHandler {
     }
 
     private void startElementWithID(FONode node, AttributesImpl attributes) {
+
+        if ( !autoPDFTag ) {
+            if ( lastParagraph != null ) {
+                StructureTreeElement element = structureTreeEventHandler.startNode(lastParagraphsLocalName, lastParagraphsAttributes,
+                        node.getParent().getStructureTreeElement());
+                addTaggingAttributes(element, lastParagraphsAttributes);
+                tagged.set(0,Boolean.TRUE);
+
+            }
+        }
+
         String localName = node.getLocalName();
         if (node instanceof CommonAccessibilityHolder) {
             addRole((CommonAccessibilityHolder) node, attributes);
         }
-        node.setStructureTreeElement(
-                structureTreeEventHandler.startReferencedNode(localName, attributes,
-                        node.getParent().getStructureTreeElement()));
+
+        StructureTreeElement structureTreeElement = structureTreeEventHandler.startReferencedNode(localName, attributes,
+                node.getParent().getStructureTreeElement());
+
+        addTaggingAttributes(structureTreeElement, attributes);
+
+        node.setStructureTreeElement(structureTreeElement);
+
+        tagged.addFirst(Boolean.TRUE);
     }
 
     private void startElementWithIDAndAltText(FObj node, String altText) {
@@ -529,22 +564,128 @@ class StructureTreeEventTrigger extends FOEventHandler {
         addRole((CommonAccessibilityHolder)node, attributes);
         addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
                 ExtensionElementMapping.STANDARD_PREFIX, altText);
+        convertRoles(attributes);
         node.setStructureTreeElement(
                 structureTreeEventHandler.startImageNode(localName, attributes,
                         node.getParent().getStructureTreeElement()));
+
+        addTaggingAttributes(node.getStructureTreeElement(), attributes);
+
+        tagged.addFirst(Boolean.TRUE);
     }
 
     private StructureTreeElement startElement(FONode node, AttributesImpl attributes) {
-        String localName = node.getLocalName();
+
+        final String localName = node.getLocalName();
+        final String roleValue = roleProperties.getProperty(localName);
+
         if (node instanceof CommonAccessibilityHolder) {
             addRole((CommonAccessibilityHolder) node, attributes);
         }
-        return structureTreeEventHandler.startNode(localName, attributes,
+
+        if ( localName != null && roleValue != null) {
+            String role = attributes.getValue("role");
+            role = role != null ? role.trim() : null;
+            if("".equals(role)){
+                removeNoNamespaceAttribute(attributes, "role");
+            } else if (role == null) {
+                addNoNamespaceAttribute(attributes, "role", roleValue);
+            }
+        }
+
+        convertRoles(attributes);
+
+        lastParagraph = null;
+        lastParagraphsLocalName = null;
+        lastParagraphsAttributes = null;
+
+        if ( !autoPDFTag  ) {
+            String role = attributes.getValue("role");
+            if (role == null) {
+                lastParagraph = node;
+                lastParagraphsLocalName = localName;
+                lastParagraphsAttributes = attributes;
+                tagged.addFirst(Boolean.FALSE);
+                return null;
+            }
+        }
+
+        StructureTreeElement element = structureTreeEventHandler.startNode(localName, attributes,
                 node.getParent().getStructureTreeElement());
+        addTaggingAttributes(element, attributes);
+        tagged.addFirst(Boolean.TRUE);
+
+        return element;
     }
 
     private void addNoNamespaceAttribute(AttributesImpl attributes, String name, String value) {
+
         attributes.addAttribute("", name, name, XMLUtil.CDATA, value);
+    }
+
+    private void removeNoNamespaceAttribute(AttributesImpl attributes, String name) {
+        attributes.removeAttribute(attributes.getIndex("", name));
+    }
+
+    private void convertRoles(AttributesImpl attributes){
+        String role = attributes.getValue("role");
+        if(role == null)
+            return;
+        if(!role.contains("?"))
+            return;
+        String eRole = role.substring(0, role.indexOf("?"));
+        String roleAttr = role.substring(role.indexOf("?") + 1);
+        removeNoNamespaceAttribute(attributes, "role");
+        addNoNamespaceAttribute(attributes, "role", eRole);
+
+        String[] roleAttrs = parseRoleData(roleAttr);
+
+        for (String rAttr:
+             roleAttrs) {
+            if(rAttr.contains("=")){
+                String name = rAttr.substring(0, rAttr.indexOf('='));
+                String value = rAttr.substring(rAttr.indexOf('=') + 1);
+                addAttribute(attributes, Accessibility.ACCESSIBILITY_NSURI, name, ExtensionElementMapping.STANDARD_PREFIX, value);
+            }
+        }
+
+    }
+
+    private static String[] parseRoleData(String data){
+        ArrayList<String> result = new ArrayList<>();
+        StringBuffer buffer = new StringBuffer();
+        char[] chars = data.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            switch (chars[i]){
+                case '\\':
+                    if(chars.length == i+1)
+                        throw new IllegalArgumentException("Bad escaping in role data " + data);
+                    buffer.append(chars[i+1]);
+                    i++;
+                    break;
+                case ';':
+                    result.add(buffer.toString());
+                    buffer = new StringBuffer();
+                    break;
+                default:
+                    buffer.append(chars[i]);
+            }
+        }
+        if(buffer.length() > 0){
+            result.add(buffer.toString());
+        }
+        return result.toArray(new String[result.size()]);
+    }
+
+    private void addTaggingAttributes(StructureTreeElement element, AttributesImpl attributes){
+        if(element instanceof PDFStructElem){
+            PDFStructElem pdfStructElem = (PDFStructElem) element;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                if(Accessibility.ACCESSIBILITY_NSURI.equals(attributes.getURI(i))){
+                    pdfStructElem.put(attributes.getLocalName(i), attributes.getValue(i));
+                }
+            }
+        }
     }
 
     private void addAttribute(AttributesImpl attributes,
@@ -555,6 +696,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
     }
 
     private void addRole(CommonAccessibilityHolder node, AttributesImpl attributes) {
+
         String role = node.getCommonAccessibility().getRole();
         if (role != null) {
             addNoNamespaceAttribute(attributes, "role", role);
@@ -562,8 +704,17 @@ class StructureTreeEventTrigger extends FOEventHandler {
     }
 
     private void endElement(FONode node) {
-        String localName = node.getLocalName();
-        structureTreeEventHandler.endNode(localName);
+
+        if (tagged.getFirst().booleanValue()) {
+            String localName = node.getLocalName();
+            structureTreeEventHandler.endNode(localName);
+        }
+
+        lastParagraph = null;
+        lastParagraphsLocalName = null;
+        lastParagraphsAttributes = null;
+
+        tagged.removeFirst();
     }
 
 }

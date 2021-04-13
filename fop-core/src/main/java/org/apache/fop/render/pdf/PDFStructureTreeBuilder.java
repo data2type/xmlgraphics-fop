@@ -19,6 +19,7 @@
 
 package org.apache.fop.render.pdf;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
@@ -106,6 +107,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
     }
 
     private static void addBuilder(String fo, StructureType structureType) {
+
         addBuilder(fo, new DefaultStructureElementBuilder(structureType));
     }
 
@@ -343,6 +345,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
     private PDFStructElem rootStructureElement;
 
+
     void setPdfFactory(PDFFactory pdfFactory) {
         this.pdfFactory = pdfFactory;
     }
@@ -356,29 +359,41 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
     }
 
     private void createRootStructureElement(PDFLogicalStructureHandler logicalStructureHandler) {
+
+        Attributes attributes = new AttributesImpl();
+
         assert rootStructureElement == null;
         PDFParentTree parentTree = logicalStructureHandler.getParentTree();
         PDFStructTreeRoot structTreeRoot = pdfFactory.getDocument().makeStructTreeRoot(parentTree);
         rootStructureElement = createStructureElement("root", structTreeRoot,
-                new AttributesImpl(), pdfFactory, eventBroadcaster);
+                attributes, pdfFactory, eventBroadcaster);
     }
 
+
+
     public static PDFStructElem createStructureElement(String name, StructureHierarchyMember parent,
-                Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
-            StructureElementBuilder builder = BUILDERS.get(name);
-            if (builder == null) {
-                // TODO is a fallback really necessary?
-                builder = DEFAULT_BUILDER;
-            }
-            return builder.build(parent, attributes, pdfFactory, eventBroadcaster);
+                Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster ) {
+
+
+        StructureElementBuilder builder = BUILDERS.get(name);
+
+        if (builder == null) {
+            // TODO is a fallback really necessary?
+            builder = DEFAULT_BUILDER;
         }
+        return builder.build(parent, attributes, pdfFactory, eventBroadcaster);
+    }
+
+
 
     public void startPageSequence(Locale language, String role) {
+
         ancestors = new LinkedList<PDFStructElem>();
         AttributesImpl attributes = new AttributesImpl();
+
         attributes.addAttribute("", ROLE, ROLE, XMLUtil.CDATA, role);
         PDFStructElem structElem = createStructureElement("page-sequence",
-                rootStructureElement, attributes, pdfFactory, eventBroadcaster);
+                    rootStructureElement, attributes, pdfFactory, eventBroadcaster);
         if (language != null) {
             structElem.setLanguage(language);
         }
@@ -388,15 +403,20 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
     public void endPageSequence() {
     }
 
+
+
     public StructureTreeElement startNode(String name, Attributes attributes, StructureTreeElement parent) {
+
         if (!isPDFA1Safe(name)) {
             return null;
         }
+
         assert parent == null || parent instanceof PDFStructElem;
         PDFStructElem parentElem = parent == null ? ancestors.getFirst() : (PDFStructElem) parent;
         PDFStructElem structElem = createStructureElement(name, parentElem, attributes,
                 pdfFactory, eventBroadcaster);
         ancestors.addFirst(structElem);
+
         return structElem;
     }
 

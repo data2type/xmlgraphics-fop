@@ -21,6 +21,7 @@ package org.apache.fop.fo;
 
 import java.io.OutputStream;
 
+import org.apache.fop.render.pdf.PDFStructureTreeBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -108,7 +109,7 @@ public class FOTreeBuilder extends DefaultHandler {
                 foUserAgent, outputFormat, stream);
         if (userAgent.isAccessibilityEnabled()) {
             foEventHandler = new FO2StructureTreeConverter(
-                    foUserAgent.getStructureTreeEventHandler(), foEventHandler);
+                    foUserAgent.getStructureTreeEventHandler(), foEventHandler,foUserAgent.getRoleProperties());
         }
         builderContext = new FOTreeBuilderContext();
         builderContext.setPropertyListMaker(new PropertyListMaker() {
@@ -173,6 +174,7 @@ public class FOTreeBuilder extends DefaultHandler {
     /** {@inheritDoc} */
     public void startElement(String namespaceURI, String localName, String rawName,
                              Attributes attlist) throws SAXException {
+
         this.depth++;
         errorinstart = false;
         try {

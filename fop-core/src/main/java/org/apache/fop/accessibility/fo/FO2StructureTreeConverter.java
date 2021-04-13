@@ -21,8 +21,10 @@ package org.apache.fop.accessibility.fo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Stack;
 
+import org.apache.fop.fo.FONode;
 import org.xml.sax.SAXException;
 
 import org.apache.fop.accessibility.Accessibility;
@@ -85,6 +87,8 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     private final Map<AbstractRetrieveMarker, State> states = new HashMap<AbstractRetrieveMarker, State>();
 
+    private final Properties roleProperties = new Properties();
+
     private static final class State {
 
         private final FOEventHandler converter;
@@ -96,7 +100,24 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
             this.converter = o.converter;
             this.converters = (Stack<FOEventHandler>) o.converters.clone();
         }
+    }
 
+    /**
+     * Creates a new instance.
+     *
+     * @param structureTreeEventHandler the object that will hold the structure tree
+     * @param delegate the FO event handler that must be wrapped by this instance
+     * @param roleProperties If auto pdf tagging is disabled, accessibility properties
+     *                       can be input via a role map property file.
+     */
+    public FO2StructureTreeConverter(StructureTreeEventHandler structureTreeEventHandler,
+                                     FOEventHandler delegate,Properties roleProperties) {
+        super(delegate);
+        this.structureTreeEventTrigger = new StructureTreeEventTrigger
+                (structureTreeEventHandler,delegate.getUserAgent().isAutoPDFTaggingEnabled(),
+                        delegate.getUserAgent().getRoleProperties());
+        this.converter = structureTreeEventTrigger;
+        this.roleProperties.putAll(roleProperties);
     }
 
     private Event root = new Event((Event) null);
@@ -144,7 +165,9 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
     public FO2StructureTreeConverter(StructureTreeEventHandler structureTreeEventHandler,
             FOEventHandler delegate) {
         super(delegate);
-        this.structureTreeEventTrigger = new StructureTreeEventTrigger(structureTreeEventHandler);
+        this.structureTreeEventTrigger = new StructureTreeEventTrigger
+                (structureTreeEventHandler,delegate.getUserAgent().isAutoPDFTaggingEnabled(),
+                        delegate.getUserAgent().getRoleProperties());
         this.converter = structureTreeEventTrigger;
     }
 
@@ -759,9 +782,16 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
         super.restoreState(retrieveMarker);
     }
 
+    @Override
+    public void closeMarker(RetrieveMarker retrieveMarker) {
+        restoreRetrieveMarkerState(retrieveMarker);
+        super.closeMarker(retrieveMarker);
+    }
+
     @SuppressWarnings("unchecked")
     private void restoreRetrieveMarkerState(AbstractRetrieveMarker retrieveMarker) {
         State state = states.get(retrieveMarker);
+        saveState(retrieveMarker);
         this.converter = state.converter;
         this.converters = (Stack<FOEventHandler>) state.converters.clone();
     }
@@ -853,6 +883,17 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     private boolean isArtifact(CommonAccessibilityHolder fobj) {
         CommonAccessibility accessibility = fobj.getCommonAccessibility();
+
+        if ( fobj instanceof FONode) {
+
+            FONode node = (FONode)fobj;
+            String localName = node.getLocalName();
+            String role = roleProperties.getProperty(localName);
+            if ( role != null && Accessibility.ROLE_ARTIFACT.equalsIgnoreCase(role) ) {
+                return true;
+            }
+        }
+
         return Accessibility.ROLE_ARTIFACT.equalsIgnoreCase(accessibility.getRole());
     }
 

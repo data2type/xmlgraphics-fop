@@ -306,5 +306,4 @@ public class PDFEncryptionParams {
                 + "allowPrintHq = " + allowPrintHq + "\n"
                 + "encryptMetadata = " + encryptMetadata;
     }
-
 }

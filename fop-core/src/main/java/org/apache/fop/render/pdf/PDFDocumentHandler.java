@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.fop.accessibility.Accessibility;
 import org.apache.xmlgraphics.xmp.Metadata;
 
 import org.apache.fop.accessibility.StructureTreeEventHandler;
@@ -195,9 +196,11 @@ public class PDFDocumentHandler extends AbstractBinaryWritingIFDocumentHandler {
             pdfResources = null;
             this.generator = null;
             currentPage = null;
+
         } catch (IOException ioe) {
             throw new IFException("I/O error in endDocument()", ioe);
         }
+
         super.endDocument();
     }
 

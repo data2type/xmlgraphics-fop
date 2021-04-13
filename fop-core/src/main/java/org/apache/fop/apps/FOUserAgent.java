@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -109,6 +110,7 @@ public class FOUserAgent {
     private StructureTreeEventHandler structureTreeEventHandler
             = DummyStructureTreeEventHandler.INSTANCE;
     private boolean pdfUAEnabled;
+    private Properties roleProperties = new Properties();
 
     /** Producer:  Metadata element for the system/software that produces
      * the document. (Some renderers can store this in the document.)
@@ -724,6 +726,23 @@ public class FOUserAgent {
     }
 
     /**
+     * Check if pdf tags are automatically generated if accessiblity is enabled.
+     *
+     * Note that the value is only relevant, if accessibility is enabled.
+     *
+     * @return true if pdf tags are automatically generated; otherwise, the function
+     * returns false.
+     */
+    public boolean isAutoPDFTaggingEnabled() {
+        Boolean enabled = (Boolean)this.getRendererOptions().get(Accessibility.PDF_AUTO_TAG);
+        if ( enabled != null ) {
+            return enabled.booleanValue();
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Sets the document's structure tree event handler, for use by accessible
      * output formats.
      *
@@ -811,6 +830,11 @@ public class FOUserAgent {
     public InternalResourceResolver getHyphenationResourceResolver() {
         return factory.getHyphenationResourceResolver();
     }
+
+    public Properties getRoleProperties() {
+        return this.roleProperties;
+    }
+
     public SoftMapCache getPDFObjectCache() {
         return pdfObjectCache;
     }
