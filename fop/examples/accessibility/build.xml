@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="all" basedir="." name="Accessibility Examples">
+
+    <property name="classpathfile" location="${basedir}/.classpath"/>
+    <property name="mvnw.dir" location="${basedir}/.mvn"/>
+    <property name="testresults" location="${basedir}/_results"/>
+    
+    
+    <path id="mvnw.classpath">
+        <fileset dir="${mvnw.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    
+    <target name="init">
+        <echo message="${basedir}/pom.xml"/>
+        <echo message="${classpathfile}"/>
+        <java classpath="${toString:mvnw.classpath}" classname="org.apache.maven.wrapper.MavenWrapperMain" fork="true">
+            <sysproperty key="maven.multiModuleProjectDirectory" path="fop"/>
+            <arg line="-f ${basedir}/pom.xml"/>
+            <arg value="dependency:build-classpath"/>
+            <arg value="-Dmdep.outputFile=${classpathfile}"/>
+        </java>
+        
+        <loadfile property="classpath" srcfile="${classpathfile}"/>
+
+        <mkdir dir="${testresults}"/>
+    </target>
+
+    <target name="noautopdftag" depends="init">
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+<!--            <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"/>-->
+            <arg line="-noautopdftag"/>
+            <arg line='-c "${basedir}/fop.xconf"'/>
+            <arg line='-fo "${basedir}/noautopdftag/test.fo"'/>
+            <arg line='-pdf "${testresults}/noautopdftag.pdf"'/>
+        </java>
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+<!--            <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"/>-->
+            <arg line='-c "${basedir}/fop.xconf"'/>
+            <arg line='-fo "${basedir}/noautopdftag/test.fo"'/>
+            <arg line='-pdf "${testresults}/noautopdftag_base.pdf"'/>
+        </java>
+    </target>
+    <target name="rolemap" depends="init">
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+            <arg line="-rolemap ${basedir}/rolemap/rolemap.xml"/>
+            <arg line='-c "${basedir}/fop.xconf"'/>
+            <arg line='-fo "${basedir}/rolemap/test.fo"'/>
+            <arg line='-pdf "${testresults}/rolemap.pdf"'/>
+        </java>
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+            <arg line='-c "${basedir}/fop.xconf"'/>
+            <arg line='-fo "${basedir}/rolemap/test.fo"'/>
+            <arg line='-pdf "${testresults}/rolemap_base.pdf"'/>
+        </java>
+    </target>
+    <target name="tag-attributes" depends="init">
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+            <arg line='-c "${basedir}/fop.xconf"'/>
+            <arg line='-fo "${basedir}/tag-attributes/test.fo"'/>
+            <arg line='-pdf "${testresults}/tag-attributes.pdf"'/>
+        </java>
+    </target>
+    
+    <target name="all" depends="noautopdftag, rolemap, tag-attributes"/>
+
+
+
+</project>

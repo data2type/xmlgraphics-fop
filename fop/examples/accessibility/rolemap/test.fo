@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+    <fo:layout-master-set>
+        <fo:simple-page-master master-name="sample">
+            <fo:region-body margin-top="10mm"/>
+            <fo:region-before extent="10mm"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:page-sequence master-reference="sample">
+        <fo:static-content flow-name="xsl-region-before">
+            <fo:block>static-content</fo:block>
+        </fo:static-content>
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block>Test</fo:block>
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>
