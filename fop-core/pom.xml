@@ -20,7 +20,7 @@
   <dependencies>
     <!-- batik deps -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-anim</artifactId>
       <version>${batik.version}</version>
       <exclusions>
@@ -31,32 +31,32 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-awt-util</artifactId>
       <version>${batik.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-bridge</artifactId>
       <version>${batik.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-extension</artifactId>
       <version>${batik.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-gvt</artifactId>
       <version>${batik.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-transcoder</artifactId>
       <version>${batik.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-codec</artifactId>
       <version>${batik.version}</version>
     </dependency>    
@@ -73,7 +73,7 @@
     </dependency>
     <!-- xgc deps -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>xmlgraphics-commons</artifactId>
       <version>${xmlgraphics.commons.version}</version>
     </dependency>
