@@ -23,13 +23,13 @@
     </dependency>
     <!-- batik deps -->
     <dependency>
-      <groupId>org.apache.xmlgraphic</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-all</artifactId>
       <version>${batik.version}</version>
     </dependency>
     <!-- xgc deps -->
     <dependency>
-      <groupId>org.apache.xmlgraphic</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>xmlgraphics-commons</artifactId>
       <version>${xmlgraphics.commons.version}</version>
     </dependency>
