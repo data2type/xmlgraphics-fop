@@ -98,6 +98,7 @@ public class PDFDocumentHandler extends AbstractBinaryWritingIFDocumentHandler {
     private final PDFDocumentNavigationHandler documentNavigationHandler
             = new PDFDocumentNavigationHandler(this);
 
+    private Map<String, Object> usedFieldNames = new HashMap<>();
     private Map<Integer, PDFArray> pageNumbers = new HashMap<Integer, PDFArray>();
     private Map<String, PDFReference> contents = new HashMap<String, PDFReference>();
 
@@ -184,6 +185,7 @@ public class PDFDocumentHandler extends AbstractBinaryWritingIFDocumentHandler {
 
     /** {@inheritDoc} */
     public void endDocument() throws IFException {
+        documentNavigationHandler.registerIncompleteActions();
         pdfDoc.getResources().addFonts(pdfDoc, fontInfo);
         try {
             if (pdfDoc.isLinearizationEnabled()) {
@@ -377,6 +379,10 @@ public class PDFDocumentHandler extends AbstractBinaryWritingIFDocumentHandler {
             structureTreeBuilder = new PDFStructureTreeBuilder();
         }
         return structureTreeBuilder;
+    }
+
+    public Map<String, Object> getUsedFieldNames() {
+        return usedFieldNames;
     }
 
     public Map<Integer, PDFArray> getPageNumbers() {

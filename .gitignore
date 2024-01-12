@@ -1,0 +1,12 @@
+
+# maven artifacts
+target/
+
+# test artifacts
+build/
+
+# miscellaneous
+*~
+*.bak
+.idea
+*.iml

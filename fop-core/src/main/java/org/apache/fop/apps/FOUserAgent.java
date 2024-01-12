@@ -863,4 +863,8 @@ public class FOUserAgent {
     public boolean isSimpleLineBreaking() {
         return factory.isSimpleLineBreaking();
     }
+
+    public boolean isSkipPagePositionOnlyAllowed() {
+        return factory.isSkipPagePositionOnlyAllowed();
+    }
 }

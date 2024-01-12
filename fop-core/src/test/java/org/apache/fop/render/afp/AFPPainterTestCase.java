@@ -24,11 +24,11 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +62,9 @@ import org.apache.fop.afp.fonts.CharacterSet;
 import org.apache.fop.afp.fonts.CharactersetEncoder;
 import org.apache.fop.afp.fonts.OutlineFontTestCase;
 import org.apache.fop.afp.fonts.RasterFont;
+import org.apache.fop.afp.parser.MODCAParser;
+import org.apache.fop.afp.parser.UnparsedStructuredField;
+import org.apache.fop.afp.ptoca.PtocaConstants;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.events.Event;
@@ -155,7 +158,7 @@ public class AFPPainterTestCase {
     }
 
     @Test
-    public void testPresentationText() throws URISyntaxException, IFException, IOException {
+    public void testPresentationText() throws Exception {
         List<String> strings = new ArrayList<String>();
         strings.add("test");
         Assert.assertEquals(writeText(strings), "BEGIN DOCUMENT DOC00001\n"
@@ -190,7 +193,7 @@ public class AFPPainterTestCase {
     }
 
     @Test
-    public void testPresentationText2() throws URISyntaxException, IFException, IOException {
+    public void testPresentationText2() throws Exception {
         List<String> strings = new ArrayList<String>();
         for (int i = 0; i < 5000; i++) {
             strings.add("tes");
@@ -211,7 +214,38 @@ public class AFPPainterTestCase {
                 + "END DOCUMENT DOC00001\n");
     }
 
-    private String writeText(List<String> text) throws URISyntaxException, IOException, IFException {
+    @Test
+    public void testLetterSpacing() throws Exception {
+        List<String> strings = new ArrayList<>();
+        strings.add("xxxx");
+        InputStream bis = getDocResultInputStream(strings, 10000);
+        MODCAParser parser = new MODCAParser(bis);
+        UnparsedStructuredField field;
+        while ((field = parser.readNextStructuredField()) != null) {
+            if (field.toString().contains("Data Presentation Text")) {
+                break;
+            }
+        }
+        DataInputStream data = new DataInputStream(new ByteArrayInputStream(field.getData()));
+        data.skip(13); //2 for controlInd
+        Assert.assertEquals(data.readByte(), 5); //len
+        Assert.assertEquals(data.readByte(), PtocaConstants.SIA  | PtocaConstants.CHAIN_BIT); //functionType
+        Assert.assertEquals(data.readShort(), 33); //Increment
+        Assert.assertEquals(data.readByte(), 0); //Direction
+        data.skip(4); //varSpaceCharacterIncrement
+        //flushText:
+        Assert.assertEquals(data.readByte(), 2); //len
+        Assert.assertEquals(data.readByte(), PtocaConstants.TRN  | PtocaConstants.CHAIN_BIT); //functionType
+    }
+
+    private String writeText(List<String> text) throws Exception {
+        InputStream bis = getDocResultInputStream(text, 0);
+        StringBuilder sb = new StringBuilder();
+        new AFPParser(false).read(bis, sb);
+        return sb.toString();
+    }
+
+    private static InputStream getDocResultInputStream(List<String> text, int letterSpacing) throws Exception {
         FOUserAgent agent = FopFactory.newInstance(new URI(".")).newFOUserAgent();
         IFContext context = new IFContext(agent);
         AFPDocumentHandler doc = new AFPDocumentHandler(context);
@@ -232,14 +266,10 @@ public class AFPPainterTestCase {
         doc.startDocument();
         doc.startPage(0, "", "", new Dimension());
         for (String s : text) {
-            afpPainter.drawText(0, 0, 0, 0, null, s);
+            afpPainter.drawText(0, 0, letterSpacing, 0, null, s);
         }
         doc.endDocument();
-
-        InputStream bis = new ByteArrayInputStream(outputStream.toByteArray());
-        StringBuilder sb = new StringBuilder();
-        new AFPParser(false).read(bis, sb);
-        return sb.toString();
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 
     @Test

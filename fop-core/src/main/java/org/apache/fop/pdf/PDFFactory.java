@@ -46,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xmlgraphics.java2d.color.NamedColorSpace;
 import org.apache.xmlgraphics.xmp.Metadata;
 
+import org.apache.fop.events.EventBroadcaster;
 import org.apache.fop.fonts.CIDFont;
 import org.apache.fop.fonts.CodePointMapping;
 import org.apache.fop.fonts.CustomFont;
@@ -81,6 +82,7 @@ public class PDFFactory {
 
     private int subsetFontCounter = -1;
     private Map<String, PDFDPart> dparts = new HashMap<String, PDFDPart>();
+    private EventBroadcaster eventBroadcaster;
 
     /**
      * Creates a new PDFFactory.
@@ -1005,7 +1007,7 @@ public class PDFFactory {
                     }
                 } else {
                     cmap = new PDFToUnicodeCMap(cidMetrics.getCIDSet().getChars(), "fop-ucs-H",
-                        new PDFCIDSystemInfo("Adobe", "Identity", 0), false);
+                        new PDFCIDSystemInfo("Adobe", "Identity", 0), false, eventBroadcaster);
                 }
                 getDocument().registerObject(cmap);
                 assert font instanceof PDFFontType0;
@@ -1075,7 +1077,7 @@ public class PDFFactory {
                 if (singleByteFont.isSymbolicFont()) {
                     //no encoding, use the font's encoding
                     if (forceToUnicode) {
-                    generateToUnicodeCmap(nonBase14, mapping);
+                        generateToUnicodeCmap(nonBase14, mapping);
                     }
                 } else if (PDFEncoding.isPredefinedEncoding(mapping.getName())) {
                     font.setEncoding(mapping.getName());
@@ -1092,7 +1094,7 @@ public class PDFFactory {
                         if (charNameMap.length < len) {
                             len = charNameMap.length;
                         }
-                        int last = 0;
+                        int last = Integer.MIN_VALUE;
                         for (int i = 0; i < len; i++) {
                             if (intmap[i] - 1 != last) {
                                 differences.add(intmap[i]);
@@ -1231,7 +1233,7 @@ public class PDFFactory {
     private void generateToUnicodeCmap(PDFFont font, SingleByteEncoding encoding) {
         PDFCMap cmap = new PDFToUnicodeCMap(encoding.getUnicodeCharMap(),
                 "fop-ucs-H",
-                new PDFCIDSystemInfo("Adobe", "Identity", 0), true);
+                new PDFCIDSystemInfo("Adobe", "Identity", 0), true, eventBroadcaster);
         getDocument().registerObject(cmap);
         font.setToUnicode(cmap);
     }
@@ -1700,5 +1702,9 @@ public class PDFFactory {
         PDFDPartRoot pdfdPartRoot = new PDFDPartRoot(getDocument());
         getDocument().registerTrailerObject(pdfdPartRoot);
         return pdfdPartRoot;
+    }
+
+    public void setEventBroadcaster(EventBroadcaster eventBroadcaster) {
+        this.eventBroadcaster = eventBroadcaster;
     }
 }
