@@ -70,6 +70,24 @@ import org.apache.fop.render.intermediate.IFException;
 
 public class AFPTrueTypeTestCase {
     private String font;
+    private String fopxconf = "<fop version=\"1.0\">\n"
+            + "  <renderers>\n"
+            + "    <renderer mime=\"application/x-afp\">\n"
+            + "      <fonts>\n"
+            + "        <font name=\"Univers\" embed-url=\"test/resources/fonts/ttf/DejaVuLGCSerif.ttf\">\n"
+            + "          <font-triplet name=\"Univers\" style=\"normal\" weight=\"normal\"/>\n"
+            + "          <font-triplet name=\"any\" style=\"normal\" weight=\"normal\"/>\n"
+            + "        </font>\n"
+            + "        <font>\n"
+            + "          <afp-font name=\"Times Roman\" type=\"raster\" codepage=\"T1V10500\" encoding=\"Cp500\">\n"
+            + "            <afp-raster-font size=\"12\" characterset=\"C0N200B0\" base14-font=\"TimesRoman\"/>\n"
+            + "          </afp-font>\n"
+            + "          <font-triplet name=\"Times\" style=\"normal\" weight=\"normal\"/>\n"
+            + "        </font>"
+            + "      </fonts>\n"
+            + "    </renderer>\n"
+            + "  </renderers>\n"
+            + "</fop>";
 
     @Test
     public void testAFPTrueType() throws IOException, SAXException, TransformerException, URISyntaxException {
@@ -100,10 +118,10 @@ public class AFPTrueTypeTestCase {
                 + "BEGIN PAGE_GROUP PGP00001\n"
                 + "BEGIN PAGE PGN00001\n"
                 + "BEGIN ACTIVE_ENVIRONMENT_GROUP AEG00001\n"
-                + "MAP DATA_RESOURCE Triplets: 0x01,FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,OBJECT_CLASSIFICATION,"
-                + "DATA_OBJECT_FONT_DESCRIPTOR,\n"
                 + "MAP CODED_FONT Triplets: FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,CHARACTER_ROTATION,"
                 + "RESOURCE_LOCAL_IDENTIFIER,\n"
+                + "MAP DATA_RESOURCE Triplets: 0x01,FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,OBJECT_CLASSIFICATION,"
+                + "DATA_OBJECT_FONT_DESCRIPTOR,\n"
                 + "DESCRIPTOR PAGE\n"
                 + "MIGRATION PRESENTATION_TEXT\n"
                 + "END ACTIVE_ENVIRONMENT_GROUP AEG00001\n"
@@ -116,6 +134,58 @@ public class AFPTrueTypeTestCase {
 
         Assert.assertEquals(getAFP(fo), format);
         Assert.assertEquals("test/resources/fonts/ttf/DejaVuLGCSerif.ttf", font);
+    }
+
+    @Test
+    public void testTTFMixedWithRaster() throws Exception {
+        String fo = "<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">\n"
+                + "  <fo:layout-master-set>\n"
+                + "    <fo:simple-page-master master-name=\"simple\">\n"
+                + "      <fo:region-body />\n"
+                + "    </fo:simple-page-master>\n"
+                + "  </fo:layout-master-set>\n"
+                + "  <fo:page-sequence master-reference=\"simple\">\n"
+                + "    <fo:flow flow-name=\"xsl-region-body\">\n"
+                + "    <fo:block font-family=\"Times New Roman\">a</fo:block>\n"
+                + "      <fo:block font-family=\"1\">a</fo:block>\n"
+                + "      <fo:block font-family=\"2\">b</fo:block>\n"
+                + "      <fo:block font-family=\"3\">c</fo:block>\n"
+                + "      <fo:block font-family=\"4\">d</fo:block>"
+                + "    </fo:flow>\n"
+                + "  </fo:page-sequence>\n"
+                + "</fo:root>";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < 5; i++) {
+            sb.append("<font>\n"
+                    + "  <afp-font name=\"3OF9\" type=\"raster\" codepage=\"T1V10500\" encoding=\"Cp500\">\n"
+                    + "      <afp-raster-font size=\"18\" characterset=\"C0920AB0\" base14-font=\"TimesRoman\"/>\n"
+                    + "  </afp-font>\n"
+                    + "  <font-triplet name=\"" + i + "\" style=\"normal\" weight=\"normal\"/>\n"
+                    + "</font>");
+        }
+        fopxconf = "<fop version=\"1.0\">\n"
+                + "  <renderers>\n"
+                + "    <renderer mime=\"application/x-afp\">\n"
+                + "      <fonts>\n"
+                + sb.toString()
+                + "<font embed-url=\"test/resources/fonts/ttf/DejaVuLGCSerif.ttf\" name=\"TimesNewRomanBold\"> \n"
+                + "  <font-triplet name=\"Times New Roman\" style=\"normal\" weight=\"bold\"/> \n"
+                + "  <font-triplet name=\"any\" style=\"normal\" weight=\"normal\"/> \n"
+                + "</font>"
+                + "      </fonts>\n"
+                + "    </renderer>\n"
+                + "  </renderers>\n"
+                + "</fop>";
+        Assert.assertTrue(getAFP(fo).contains("BEGIN ACTIVE_ENVIRONMENT_GROUP AEG00001\n"
+                + "MAP CODED_FONT Triplets: FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,CHARACTER_ROTATION,"
+                + "RESOURCE_LOCAL_IDENTIFIER,EXTENDED_RESOURCE_LOCAL_IDENTIFIER,FULLY_QUALIFIED_NAME,"
+                + "FULLY_QUALIFIED_NAME,CHARACTER_ROTATION,RESOURCE_LOCAL_IDENTIFIER,"
+                + "EXTENDED_RESOURCE_LOCAL_IDENTIFIER,FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,CHARACTER_ROTATION,"
+                + "RESOURCE_LOCAL_IDENTIFIER,EXTENDED_RESOURCE_LOCAL_IDENTIFIER,FULLY_QUALIFIED_NAME,"
+                + "FULLY_QUALIFIED_NAME,CHARACTER_ROTATION,RESOURCE_LOCAL_IDENTIFIER,\n"
+                + "MAP DATA_RESOURCE Triplets: 0x01,FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,OBJECT_CLASSIFICATION,"
+                + "DATA_OBJECT_FONT_DESCRIPTOR,\n"
+                + "DESCRIPTOR PAGE"));
     }
 
     @Test
@@ -159,24 +229,6 @@ public class AFPTrueTypeTestCase {
     }
 
     private String getAFP(String fo) throws IOException, TransformerException, SAXException, URISyntaxException {
-        String fopxconf = "<fop version=\"1.0\">\n"
-                + "  <renderers>\n"
-                + "    <renderer mime=\"application/x-afp\">\n"
-                + "      <fonts>\n"
-                + "        <font name=\"Univers\" embed-url=\"test/resources/fonts/ttf/DejaVuLGCSerif.ttf\">\n"
-                + "          <font-triplet name=\"Univers\" style=\"normal\" weight=\"normal\"/>\n"
-                + "          <font-triplet name=\"any\" style=\"normal\" weight=\"normal\"/>\n"
-                + "        </font>\n"
-                + "        <font>\n"
-                + "          <afp-font name=\"Times Roman\" type=\"raster\" codepage=\"T1V10500\" encoding=\"Cp500\">\n"
-                + "            <afp-raster-font size=\"12\" characterset=\"C0N200B0\" base14-font=\"TimesRoman\"/>\n"
-                + "          </afp-font>\n"
-                + "          <font-triplet name=\"Times\" style=\"normal\" weight=\"normal\"/>\n"
-                + "        </font>"
-                + "      </fonts>\n"
-                + "    </renderer>\n"
-                + "  </renderers>\n"
-                + "</fop>";
         FopFactoryBuilder confBuilder = new FopConfParser(
                 new ByteArrayInputStream(fopxconf.getBytes()),
                 EnvironmentalProfileFactory.createRestrictedIO(new URI("."),
@@ -224,7 +276,7 @@ public class AFPTrueTypeTestCase {
         PageObject po = new PageObject(new Factory(), "PAGE0001", 0, 0, 0, 0, 0);
         when(ds.getCurrentPage()).thenReturn(po);
 
-        AFPPainter afpPainter = new MyAFPPainter(afpDocumentHandler);
+        AFPPainter afpPainter = new MyAFPPainter(afpDocumentHandler, true);
         afpPainter.setFont("any", "normal", 400, null, null, Color.BLACK);
         afpPainter.drawText(0, 0, 0, 0, null, "test");
 
@@ -240,6 +292,31 @@ public class AFPTrueTypeTestCase {
 
     @Test
     public void testAFPPainterWidths() throws IFException, IOException {
+        String s = getAFPPainterWidths(true, "abcdefghijklmno");
+        Assert.assertTrue(s, s.contains("DATA PRESENTATION_TEXT AMB AMI 0 SCFL SVI TRN a AMI"
+                + " 9 TRN b AMI 29 TRN c AMI 59 TRN d AMI 99 TRN e AMI 149 TRN f AMI 209 TRN g AMI 24 TRN h AMI 105 TRN"
+                + " i AMI 196 TRN j AMI 42 TRN k AMI 153 TRN l AMI 19 TRN m AMI 151 TRN n AMI 38 TRN o AMI 190"));
+    }
+
+    @Test
+    public void testAFPPainterWidthsNoPositionByChar() throws IFException, IOException {
+        String s = getAFPPainterWidths(false, "abcdefghijklmno");
+        Assert.assertTrue(s, s.contains("DATA PRESENTATION_TEXT AMB AMI 0 SCFL SVI TRN abcdefghijklmno"));
+    }
+
+    @Test
+    public void testAFPPainterWidthsNoPositionByCharLongText() throws IFException, IOException {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 30; i++) {
+            sb.append("test ");
+        }
+        String s = getAFPPainterWidths(false, sb.toString());
+        Assert.assertTrue(s, s.contains("DATA PRESENTATION_TEXT AMB AMI 0 SCFL SVI TRN test test test test test test "
+                + "test test test test test test test test test test test test test test test test test test test t "
+                + "TRN est test test test test"));
+    }
+
+    private String getAFPPainterWidths(boolean positionByChar, String text) throws IFException, IOException {
         AFPDocumentHandler afpDocumentHandler = mock(AFPDocumentHandler.class);
         when(afpDocumentHandler.getPaintingState()).thenReturn(new AFPPaintingState());
         when(afpDocumentHandler.getResourceManager()).thenReturn(new AFPResourceManager(null));
@@ -249,9 +326,9 @@ public class AFPTrueTypeTestCase {
         PageObject po = new PageObject(new Factory(), "PAGE0001", 0, 0, 0, 0, 0);
         when(ds.getCurrentPage()).thenReturn(po);
 
-        AFPPainter afpPainter = new MyAFPPainter(afpDocumentHandler);
+        AFPPainter afpPainter = new MyAFPPainter(afpDocumentHandler, positionByChar);
         afpPainter.setFont("any", "normal", 400, null, 12000, Color.BLACK);
-        afpPainter.drawText(0, 0, 0, 0, null, "abcdefghijklmno");
+        afpPainter.drawText(0, 0, 0, 0, null, text);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         po.writeToStream(bos);
@@ -260,14 +337,15 @@ public class AFPTrueTypeTestCase {
         AFPParser afpParser = new AFPParser(true);
         afpParser.readWidths = true;
         afpParser.read(bis, sb);
-        Assert.assertTrue(sb.toString(), sb.toString().contains("DATA PRESENTATION_TEXT AMB AMI 0 SCFL SVI TRN a AMI"
-                + " 9 TRN b AMI 29 TRN c AMI 59 TRN d AMI 99 TRN e AMI 149 TRN f AMI 209 TRN g AMI 24 TRN h AMI 105 TRN"
-                + " i AMI 196 TRN j AMI 42 TRN k AMI 153 TRN l AMI 19 TRN m AMI 151 TRN n AMI 38 TRN o AMI 190"));
+        return sb.toString();
     }
 
-    class MyAFPPainter extends AFPPainter {
-        MyAFPPainter(AFPDocumentHandler documentHandler) {
+    static class MyAFPPainter extends AFPPainter {
+        boolean positionByChar;
+
+        MyAFPPainter(AFPDocumentHandler documentHandler, boolean positionByChar) {
             super(documentHandler);
+            this.positionByChar = positionByChar;
         }
 
         protected FOUserAgent getUserAgent() {
@@ -292,7 +370,7 @@ public class AFPTrueTypeTestCase {
             }
             font.setWidthArray(widths);
             f.addMetrics("any", new AFPFontConfig.AFPTrueTypeFont("", true,
-                    new FopCharacterSet("", "UTF-16BE", "", font, null, null), null, null, null));
+                    new FopCharacterSet("", "UTF-16BE", "", font, null, null), null, null, null, positionByChar));
             return f;
         }
     }

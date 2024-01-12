@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,6 +51,7 @@ import org.apache.xmlgraphics.image.loader.ImageManager;
 import org.apache.xmlgraphics.image.loader.impl.DefaultImageContext;
 import org.apache.xmlgraphics.image.loader.impl.DefaultImageSessionContext;
 import org.apache.xmlgraphics.image.loader.impl.ImageBuffered;
+import org.apache.xmlgraphics.util.QName;
 
 import org.apache.fop.afp.AFPEventProducer;
 import org.apache.fop.afp.AFPPaintingState;
@@ -67,6 +68,7 @@ import org.apache.fop.fo.expr.PropertyException;
 import org.apache.fop.fonts.Font;
 import org.apache.fop.fonts.FontInfo;
 import org.apache.fop.render.ImageHandlerRegistry;
+import org.apache.fop.render.afp.extensions.AFPElementMapping;
 import org.apache.fop.render.intermediate.IFContext;
 import org.apache.fop.render.intermediate.IFException;
 import org.apache.fop.traits.BorderProps;
@@ -75,7 +77,7 @@ import org.apache.fop.util.ColorUtil;
 public class AFPPainterTestCase {
 
     @Test
-    public void testDrawBorderRect() {
+    public void testDrawBorderRect() throws Exception {
         // the goal of this test is to check that the drawing of rounded corners in AFP uses a bitmap of the
         // rounded corners (in fact the whole rectangle with rounded corners). the check is done by verifying
         // that the AFPImageHandlerRenderedImage.handleImage() method is called
@@ -99,7 +101,7 @@ public class AFPPainterTestCase {
         AFPImageHandlerRenderedImage afpImageHandlerRenderedImage = mock(AFPImageHandlerRenderedImage.class);
         // mock
         ImageHandlerRegistry imageHandlerRegistry = mock(ImageHandlerRegistry.class);
-        when(imageHandlerRegistry.getHandler(any(AFPRenderingContext.class), any(Image.class))).thenReturn(
+        when(imageHandlerRegistry.getHandler(any(AFPRenderingContext.class), nullable(Image.class))).thenReturn(
                 afpImageHandlerRenderedImage);
         // mock
         FOUserAgent foUserAgent = mock(FOUserAgent.class);
@@ -137,19 +139,15 @@ public class AFPPainterTestCase {
         BorderProps border2 = new BorderProps(style, borderWidth, radiusStart, radiusEnd, color, mode);
         BorderProps border3 = new BorderProps(style, borderWidth, radiusStart, radiusEnd, color, mode);
         BorderProps border4 = new BorderProps(style, borderWidth, radiusStart, radiusEnd, color, mode);
-        try {
-            when(imageManager.convertImage(any(Image.class), any(ImageFlavor[].class), any(Map.class)))
-                    .thenReturn(imageBuffered);
-            afpPainter.drawBorderRect(rectangle, border1, border2, border3, border4, Color.WHITE);
-            // note: here we would really like to verify that the second and third arguments passed to
-            // handleImage() are the instances ib and rect declared above but that causes mockito to throw
-            // an exception, probably because we cannot declare the AFPRenderingContext and are forced to
-            // use any(), which forces the use of any() for all arguments
-            verify(afpImageHandlerRenderedImage).handleImage(any(AFPRenderingContext.class),
-                    any(Image.class), any(Rectangle.class));
-        } catch (Exception e) {
-            fail("something broke...");
-        }
+        when(imageManager.convertImage(any(Image.class), any(ImageFlavor[].class), any(Map.class)))
+                .thenReturn(imageBuffered);
+        afpPainter.drawBorderRect(rectangle, border1, border2, border3, border4, Color.WHITE);
+        // note: here we would really like to verify that the second and third arguments passed to
+        // handleImage() are the instances ib and rect declared above but that causes mockito to throw
+        // an exception, probably because we cannot declare the AFPRenderingContext and are forced to
+        // use any(), which forces the use of any() for all arguments
+        verify(afpImageHandlerRenderedImage).handleImage(any(AFPRenderingContext.class),
+                nullable(Image.class), any(Rectangle.class));
     }
 
     @Test
@@ -219,7 +217,7 @@ public class AFPPainterTestCase {
         RasterFont rf = new RasterFont("", true);
         CharacterSet cs = mock(CharacterSet.class);
         CharactersetEncoder.EncodedChars encoder = mock(CharactersetEncoder.EncodedChars.class);
-        when(cs.encodeChars(anyString())).thenReturn(encoder);
+        when(cs.encodeChars(any(CharSequence.class))).thenReturn(encoder);
         when(encoder.getLength()).thenReturn(text.get(0).length());
         rf.addCharacterSet(12000, cs);
         fi.addMetrics("", rf);
@@ -332,5 +330,57 @@ public class AFPPainterTestCase {
         int radiusEnd = 0;
         BorderProps border1 = new BorderProps(style, borderWidth, radiusStart, radiusEnd, color, mode);
         afpPainter.drawBorderRect(new Rectangle(0, 0, 552755, 16090), null, border1, null, null, Color.WHITE);
+    }
+
+    @Test
+    public void testPageGroup() throws IFException, IOException {
+        FOUserAgent ua = FopFactory.newInstance(new File(".").toURI()).newFOUserAgent();
+        AFPDocumentHandler documentHandler = new AFPDocumentHandler(new IFContext(ua));
+        Map<QName, String> attributes = new HashMap<>();
+        attributes.put(AFPElementMapping.PAGE_GROUP, "false");
+        documentHandler.getContext().setForeignAttributes(attributes);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        documentHandler.setResult(new StreamResult(os));
+        documentHandler.startDocument();
+        documentHandler.startPageSequence(null);
+        documentHandler.startPage(0, "", "", new Dimension());
+        AFPPainter afpPainter = new AFPPainter(documentHandler);
+        setFont(documentHandler, afpPainter);
+        afpPainter.drawText(0, 0, 0, 0, null, "a");
+        documentHandler.endPage();
+        documentHandler.endPageSequence();
+        attributes.clear();
+        documentHandler.startPageSequence(null);
+        documentHandler.startPage(0, "", "", new Dimension());
+        afpPainter.drawText(0, 0, 0, 0, null, "a");
+        documentHandler.endDocument();
+
+        InputStream bis = new ByteArrayInputStream(os.toByteArray());
+        StringBuilder sb = new StringBuilder();
+        new AFPParser(false).read(bis, sb);
+        Assert.assertEquals(sb.toString(), "BEGIN DOCUMENT DOC00001\n"
+                + "BEGIN PAGE PGN00001\n"
+                + "BEGIN ACTIVE_ENVIRONMENT_GROUP AEG00001\n"
+                + "MAP CODED_FONT Triplets: "
+                + "FULLY_QUALIFIED_NAME,FULLY_QUALIFIED_NAME,CHARACTER_ROTATION,RESOURCE_LOCAL_IDENTIFIER,\n"
+                + "DESCRIPTOR PAGE\n"
+                + "MIGRATION PRESENTATION_TEXT\n"
+                + "END ACTIVE_ENVIRONMENT_GROUP AEG00001\n"
+                + "BEGIN PRESENTATION_TEXT PT000001\n"
+                + "DATA PRESENTATION_TEXT\n"
+                + "END PRESENTATION_TEXT PT000001\n"
+                + "END PAGE PGN00001\n"
+                + "BEGIN PAGE_GROUP PGP00001\n"
+                + "BEGIN PAGE PGN00002\n"
+                + "BEGIN ACTIVE_ENVIRONMENT_GROUP AEG00002\n"
+                + "DESCRIPTOR PAGE\n"
+                + "MIGRATION PRESENTATION_TEXT\n"
+                + "END ACTIVE_ENVIRONMENT_GROUP AEG00002\n"
+                + "BEGIN PRESENTATION_TEXT PT000002\n"
+                + "DATA PRESENTATION_TEXT\n"
+                + "END PRESENTATION_TEXT PT000002\n"
+                + "END PAGE PGN00002\n"
+                + "END PAGE_GROUP PGP00001\n"
+                + "END DOCUMENT DOC00001\n");
     }
 }

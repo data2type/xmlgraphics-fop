@@ -155,7 +155,7 @@ list of possible build targets.
   <property name="name" value="fop"/>
   <property name="NAME" value="FOP"/>
   <property name="version" value="2.7.0-SNAPSHOT"/>
-  <property name="year" value="1999-2021"/>
+  <property name="year" value="1999-2022"/>
   <property name="javac.debug" value="on"/>
   <property name="javac.optimize" value="off"/>
   <property name="javac.deprecation" value="on"/>
@@ -631,6 +631,7 @@ list of possible build targets.
       <arg value="clean"/>
       <arg value="install"/>
       <arg value="-DskipTests"/>
+      <arg value="-U"/>
     </exec>	
     <copy file="${basedir}/../fop-transcoder/target/fop-transcoder-${version}.jar" tofile="${build.dir}/fop-transcoder.jar"/>
     <copy file="${basedir}/../fop-transcoder-allinone/target/fop-transcoder-allinone-${version}.jar" tofile="${build.dir}/fop-transcoder-allinone.jar"/>
@@ -642,6 +643,7 @@ list of possible build targets.
       <arg value="clean"/>
       <arg value="install"/>
       <arg value="-DskipTests"/>
+      <arg value="-U"/>
     </exec>
     <copy file="${basedir}/../fop-transcoder/target/fop-transcoder-${version}.jar" tofile="${build.dir}/fop-transcoder.jar"/>
     <copy file="${basedir}/../fop-transcoder-allinone/target/fop-transcoder-allinone-${version}.jar" tofile="${build.dir}/fop-transcoder-allinone.jar"/>

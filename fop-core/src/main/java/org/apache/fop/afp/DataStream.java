@@ -485,7 +485,6 @@ public class DataStream {
      */
     public void createIncludePageOverlay(String name, int x, int y) {
         currentPageObject.createIncludePageOverlay(name, x, y, paintingState.getRotation());
-        currentPageObject.getActiveEnvironmentGroup().createOverlay(name);
     }
 
     /**
@@ -495,7 +494,9 @@ public class DataStream {
      *            the name of the medium map
      */
     public void createInvokeMediumMap(String name) {
-        currentPageGroup.createInvokeMediumMap(name);
+        if (currentPageGroup != null) {
+            currentPageGroup.createInvokeMediumMap(name);
+        }
     }
 
     /**
@@ -576,13 +577,10 @@ public class DataStream {
      * @param encoding The CCSID character set encoding
      */
     public void createTagLogicalElement(String name, String value, int encoding) {
-
         TagLogicalElement.State tleState = new  TagLogicalElement.State(name, value, encoding);
         if (currentPage != null) {
-
             currentPage.createTagLogicalElement(tleState);
-
-        } else {
+        } else if (currentPageGroup != null) {
             currentPageGroup.createTagLogicalElement(tleState);
         }
     }

@@ -42,9 +42,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -143,7 +143,7 @@ public class IFStructureTreeBuilderTestCase {
         return atts;
     }
 
-    private static final class AttributesMatcher extends ArgumentMatcher<Attributes> {
+    private static final class AttributesMatcher implements ArgumentMatcher<Attributes> {
 
         private final Attributes expected;
 
@@ -155,7 +155,7 @@ public class IFStructureTreeBuilderTestCase {
             return argThat(new AttributesMatcher(expected));
         }
 
-        public boolean matches(Object attributes) {
+        public boolean matches(Attributes attributes) {
             return attributesEqual(expected, (Attributes) attributes);
         }
 

@@ -23,11 +23,11 @@ import org.junit.Test;
 import org.xml.sax.Locator;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,17 +76,17 @@ public class PageSequenceMasterTestCase {
 
          //Setup to mock the exhaustion of the last sub-sequence specifier
          when(mockSinglePageMasterReference.getNextPageMaster(anyBoolean(), anyBoolean(),
-                 anyBoolean(), anyBoolean())).thenReturn(null, spm);
+                 anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(null, spm);
 
          //Need this for the method to return normally
-         when(mockSinglePageMasterReference.canProcess(anyString())).thenReturn(true);
+         when(mockSinglePageMasterReference.canProcess(nullable(String.class))).thenReturn(true);
 
          when(mockSinglePageMasterReference.isReusable()).thenReturn(canResume);
 
-         pageSequenceMaster.getNextSimplePageMaster(false, false, false, false, null);
+         pageSequenceMaster.getNextSimplePageMaster(false, false, false, false, null, false);
 
-         verify(mockBlockLevelEventProducer).pageSequenceMasterExhausted((Locator)anyObject(),
-                 anyString(), eq(canResume), (Locator)anyObject());
+         verify(mockBlockLevelEventProducer).pageSequenceMasterExhausted(nullable(Object.class),
+                 nullable(String.class), eq(canResume), nullable(Locator.class));
      }
 
      /**
@@ -116,7 +116,7 @@ public class PageSequenceMasterTestCase {
           when(mockRegion.getRegionName()).thenReturn(emptyFlowRegionName);
 
           when(mockSinglePageMasterReference.getNextPageMaster(anyBoolean(), anyBoolean(),
-                  anyBoolean(), anyBoolean()))
+                  anyBoolean(), anyBoolean(), anyBoolean()))
                   .thenReturn(null, mockEmptySPM);
 
           PageSequenceMaster pageSequenceMaster = createPageSequenceMaster(mockLayoutMasterSet,
@@ -127,7 +127,7 @@ public class PageSequenceMasterTestCase {
 
           try {
               pageSequenceMaster.getNextSimplePageMaster(false, false, false, false,
-                      mainFlowRegionName);
+                      mainFlowRegionName, false);
               fail("The next simple page master does not refer to the main flow");
          } catch (PageProductionException ppe) {
              //Passed test

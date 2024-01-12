@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.xml.sax.helpers.DefaultHandler;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -93,7 +93,7 @@ public class IFSerializerTestCase {
     }
 
     private void thenImageResourcesMustBeClosed() {
-        verify(imageManager).closeImage(eq(IMAGE), any(ImageSessionContext.class));
+        verify(imageManager).closeImage(eq(IMAGE), nullable(ImageSessionContext.class));
     }
 
     @Test
