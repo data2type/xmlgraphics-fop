@@ -45,9 +45,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.apache.xmlgraphics.image.loader.Image;
+import org.apache.xmlgraphics.image.loader.ImageException;
+import org.apache.xmlgraphics.image.loader.ImageInfo;
+import org.apache.xmlgraphics.java2d.color.ColorSpaces;
+import org.apache.xmlgraphics.java2d.color.ColorWithAlternatives;
+
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.FopFactory;
+import org.apache.fop.events.Event;
+import org.apache.fop.events.EventListener;
 import org.apache.fop.fo.Constants;
+import org.apache.fop.fonts.CMapSegment;
 import org.apache.fop.fonts.FontInfo;
 import org.apache.fop.fonts.FontTriplet;
 import org.apache.fop.fonts.MultiByteFont;
@@ -139,15 +148,19 @@ public class PDFPainterTestCase {
         assertEquals(pdfPainter.renderingContext.getHints().get("page-number"), 3);
     }
 
-    class MyPDFPainter extends PDFPainter {
-        protected RenderingContext renderingContext;
-        public MyPDFPainter(PDFDocumentHandler documentHandler, PDFLogicalStructureHandler logicalStructureHandler) {
+    static class MyPDFPainter extends PDFPainter {
+        RenderingContext renderingContext;
+        MyPDFPainter(PDFDocumentHandler documentHandler, PDFLogicalStructureHandler logicalStructureHandler) {
             super(documentHandler, logicalStructureHandler);
         }
 
         protected RenderingContext createRenderingContext() {
             renderingContext = super.createRenderingContext();
             return renderingContext;
+        }
+
+        protected void drawImageUsingImageHandler(ImageInfo info, Rectangle rect) throws ImageException, IOException {
+            super.drawImageUsingImageHandler(info, rect);
         }
     }
 
@@ -167,9 +180,47 @@ public class PDFPainterTestCase {
         pdfPainter.drawText(0, 0, 0, 0, null, "test");
 
         assertEquals(sb.toString(), "BT\n/f1 0.012 Tf\n1 0 0.3333 -1 0 0 Tm [<0000000000000000>] TJ\n");
-        verify(pdfContentGenerator).add("q\n");
         verify(pdfContentGenerator).add("2 Tr 0.31543 w\n");
-        verify(pdfContentGenerator).add("Q\n");
+        verify(pdfContentGenerator).add("0 Tr\n");
+    }
+
+    @Test
+    public void testSimulateStyleColor() throws Exception {
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+        foUserAgent = fopFactory.newFOUserAgent();
+        PDFDocumentHandler pdfDocumentHandler = new PDFDocumentHandler(new IFContext(foUserAgent));
+
+        pdfDocumentHandler.setResult(new StreamResult(new ByteArrayOutputStream()));
+        pdfDocumentHandler.startDocument();
+        pdfDocumentHandler.startPage(0, "", "", new Dimension());
+
+        FontInfo fi = new FontInfo();
+        fi.addFontProperties("f1", new FontTriplet("a", "italic", 700));
+        MultiByteFont font = new MultiByteFont(null, null);
+        font.setSimulateStyle(true);
+        fi.addMetrics("f1", font);
+        pdfDocumentHandler.setFontInfo(fi);
+        PDFPainter pdfPainter = new PDFPainter(pdfDocumentHandler, null);
+        pdfPainter.setFont("a", "italic", 700, null, 12, Color.red);
+        pdfPainter.drawText(0, 0, 0, 0, null, "test");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        PDFFilterList filters = pdfPainter.generator.getStream().getFilterList();
+        filters.setDisableAllFilters(true);
+        pdfPainter.generator.getStream().output(bos);
+        Assert.assertEquals(bos.toString(), "<< /Length 1 0 R >>\n"
+                + "stream\n"
+                + "q\n"
+                + "1 0 0 -1 0 0 cm\n"
+                + "1 0 0 rg\n"
+                + "BT\n"
+                + "/f1 0.012 Tf\n"
+                + "1 0 0 RG\n"
+                + "2 Tr 0.31543 w\n"
+                + "1 0 0.3333 -1 0 0 Tm [<0000000000000000>] TJ\n"
+                + "0 Tr\n"
+                + "\n"
+                + "endstream");
     }
 
     @Test
@@ -193,6 +244,33 @@ public class PDFPainterTestCase {
         pdfPainter.drawText(0, 0, 0, 0, null, text);
 
         assertEquals("BT\n/f1 0.012 Tf\n1 0 0 -1 0 0 Tm [<" + expectedHex + ">] TJ\n", output.toString());
+    }
+
+    @Test
+    public void testDrawDpTextWithMultiByteFont() throws IFException {
+        StringBuilder output = new StringBuilder();
+        PDFDocumentHandler pdfDocumentHandler = makePDFDocumentHandler(output);
+        String text = "Hi\uD83D\uDCA9";
+        MultiByteFont font = new MultiByteFont(null, null);
+        font.setWidthArray(new int[10]);
+        font.setCMap(new CMapSegment[]{new CMapSegment(128169, 128169, 1)});
+        FontInfo fi = new FontInfo();
+        fi.addFontProperties("f1", new FontTriplet("a", "normal", 400));
+        fi.addMetrics("f1", font);
+        pdfDocumentHandler.setFontInfo(fi);
+        MyPDFPainter pdfPainter = new MyPDFPainter(pdfDocumentHandler, null);
+        pdfPainter.setFont("a", "normal", 400, null, 12, null);
+        int[][] dp = new int[1][0];
+        dp[0] = new int[]{0, 1, 2, 3};
+        pdfPainter.drawText(0, 0, 0, 0, dp, text);
+        assertEquals("BT\n"
+                + "1 0 0 -1 0 0 Tm /f1 0.012 Tf\n"
+                + "0 0.001 Td\n"
+                + "<0000> Tj\n"
+                + "0.002 0.002 Td\n"
+                + "<0000> Tj\n"
+                + "0 0 Td\n"
+                + "<0001> Tj\n", output.toString());
     }
 
     private PDFDocumentHandler makePDFDocumentHandler(final StringBuilder sb) throws IFException {
@@ -319,6 +397,20 @@ public class PDFPainterTestCase {
     }
 
     @Test
+    public void testSVGFontFallback() throws IFException, IOException {
+        String out = drawSVGFont(null);
+        Assert.assertEquals(out, "<< /Length 1 0 R >>\n"
+                + "stream\n"
+                + "q\n"
+                + "1 0 0 -1 0 0 cm\n"
+                + "BT\n"
+                + "/f1 0.012 Tf\n"
+                + "1 0 0 -1 0 0 Tm [<0000000000000000>] TJ\n"
+                + "\n"
+                + "endstream");
+    }
+
+    @Test
     public void testSVGFontScale() throws IFException, IOException {
         String out = drawSVGFont("<svg xmlns=\"http://www.w3.org/2000/svg\">\n"
                 + "<g transform=\"translate(0 0) translate(0 0) scale(50)\"/>"
@@ -340,9 +432,11 @@ public class PDFPainterTestCase {
         MultiByteFont font = new MultiByteFont(null, null);
         font.setWidthArray(new int[1]);
         Map<Integer, SVGGlyphData> svgs = new HashMap<>();
-        SVGGlyphData svgGlyph = new SVGGlyphData();
-        svgGlyph.setSVG(svg);
-        svgs.put(0, svgGlyph);
+        if (svg != null) {
+            SVGGlyphData svgGlyph = new SVGGlyphData();
+            svgGlyph.setSVG(svg);
+            svgs.put(0, svgGlyph);
+        }
         font.setSVG(svgs);
         font.setBBoxArray(new Rectangle[] {new Rectangle()});
         fi.addMetrics("f1", font);
@@ -355,5 +449,66 @@ public class PDFPainterTestCase {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         pdfPainter.generator.getStream().output(bos);
         return bos.toString();
+    }
+
+    @Test
+    public void testEventOnImageParseException() throws Exception {
+        FOUserAgent ua = FopFactory.newInstance(new File(".").toURI()).newFOUserAgent();
+        PDFDocumentHandler dh = new PDFDocumentHandler(new IFContext(ua));
+        dh.setResult(new StreamResult(new ByteArrayOutputStream()));
+        dh.startDocument();
+        dh.startPage(0, "", "", new Dimension());
+        MyPDFPainter pdfPainter = new MyPDFPainter(dh, null) {
+            protected void drawImage(Image image, Rectangle rect, RenderingContext context) {
+                throw new RuntimeException();
+            }
+        };
+        ImageInfo info = new ImageInfo("test/resources/fop/image/logo.jpg", "image/jpeg");
+        final Event[] event = new Event[1];
+        ua.getEventBroadcaster().addEventListener(new EventListener() {
+            public void processEvent(Event e) {
+                event[0] = e;
+            }
+        });
+        pdfPainter.drawImageUsingImageHandler(info, new Rectangle());
+        Assert.assertEquals(event[0].getEventKey(), "imageWritingError");
+    }
+
+    @Test
+    public void testAlphaColor() throws Exception {
+        fillColor(new Color(0, 0, 0, 102), "0 g\n");
+        Color deviceColor = new Color(ColorSpaces.getDeviceCMYKColorSpace(), new float[4], 0.4f);
+        fillColor(new ColorWithAlternatives(0, 0, 0, 102, new Color[]{deviceColor}), "0 0 0 0 k\n");
+    }
+
+    private void fillColor(Color color, String cmd) throws Exception {
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+        foUserAgent = fopFactory.newFOUserAgent();
+        PDFDocumentHandler pdfDocumentHandler = new PDFDocumentHandler(new IFContext(foUserAgent));
+        pdfDocumentHandler.setResult(new StreamResult(new ByteArrayOutputStream()));
+        pdfDocumentHandler.startDocument();
+        pdfDocumentHandler.startPage(0, "", "", new Dimension());
+        PDFPainter pdfPainter = new PDFPainter(pdfDocumentHandler, null);
+        pdfPainter.fillRect(new Rectangle(10, 10), color);
+        PDFFilterList filters = pdfPainter.generator.getStream().getFilterList();
+        filters.setDisableAllFilters(true);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        pdfPainter.generator.getStream().output(bos);
+        Assert.assertEquals("<< /Length 1 0 R >>\n"
+                + "stream\n"
+                + "q\n"
+                + "1 0 0 -1 0 0 cm\n"
+                + "/GS1 gs\n"
+                + cmd
+                + "0 0 0.01 0.01 re f\n"
+                + "\n"
+                + "endstream", bos.toString());
+        bos.reset();
+        pdfDocumentHandler.getCurrentPage().getGStates().iterator().next().output(bos);
+        Assert.assertEquals(bos.toString(), "<<\n"
+                + "/Type /ExtGState\n"
+                + "/ca 0.4\n"
+                + "/CA 1.0\n"
+                + ">>");
     }
 }

@@ -203,10 +203,13 @@ public class FontInfoFinder {
                 TTFFile ttf = new TTFFile(false, false);
                 FontFileReader reader = new FontFileReader(in);
                 ttcNames = ttf.getTTCnames(reader);
-            } catch (Exception e) {
+                if (ttcNames == null) {
+                    return null;
+                }
+            } catch (Throwable e) {
                 if (this.eventListener != null) {
                     this.eventListener.fontLoadingErrorAtAutoDetection(this,
-                            fontURI.toASCIIString(), e);
+                            fontURI.toASCIIString(), new RuntimeException(e));
                 }
                 return null;
             } finally {
@@ -228,13 +231,13 @@ public class FontInfoFinder {
                     if (this.eventListener != null) {
                         customFont.setEventListener(this.eventListener);
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     if (fontCache != null) {
                         fontCache.registerFailedFont(embedUri.toASCIIString(), fileLastModified);
                     }
                     if (this.eventListener != null) {
                         this.eventListener.fontLoadingErrorAtAutoDetection(this,
-                                embedUri.toASCIIString(), e);
+                                embedUri.toASCIIString(), new RuntimeException(e));
                     }
                     continue;
                 }
@@ -255,13 +258,13 @@ public class FontInfoFinder {
                 if (this.eventListener != null) {
                     customFont.setEventListener(this.eventListener);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 if (fontCache != null) {
                     fontCache.registerFailedFont(embedUri.toASCIIString(), fileLastModified);
                 }
                 if (this.eventListener != null) {
                     this.eventListener.fontLoadingErrorAtAutoDetection(this,
-                            embedUri.toASCIIString(), e);
+                            embedUri.toASCIIString(), new RuntimeException(e));
                 }
                 return null;
             }

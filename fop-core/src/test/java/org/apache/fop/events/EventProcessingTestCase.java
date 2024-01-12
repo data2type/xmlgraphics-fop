@@ -79,7 +79,7 @@ public class EventProcessingTestCase {
         FOUserAgent userAgent = fopFactory.newFOUserAgent();
 
         userAgent.getEventBroadcaster().addEventListener(eventChecker);
-        Fop fop = fopFactory.newFop(mimeType, userAgent, new NullOutputStream());
+        Fop fop = fopFactory.newFop(mimeType, userAgent, NullOutputStream.NULL_OUTPUT_STREAM);
         Transformer transformer = tFactory.newTransformer();
         Source src = new StreamSource(inStream);
         Result res = new SAXResult(fop.getDefaultHandler());
@@ -103,12 +103,6 @@ public class EventProcessingTestCase {
     public void doTest(String filename, String expectedEventID) throws Exception {
         doTest(BASE_DIR.resolve(filename).toURL().openStream(), null, expectedEventID,
                 MimeConstants.MIME_PDF);
-    }
-
-    @Test
-    public void testArea() throws Exception {
-        doTest("area.fo",
-                AreaEventProducer.class.getName() + ".unresolvedIDReferenceOnPage");
     }
 
     @Test

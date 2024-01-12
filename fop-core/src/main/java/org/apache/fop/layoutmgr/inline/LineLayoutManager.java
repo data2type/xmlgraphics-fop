@@ -651,14 +651,25 @@ public class LineLayoutManager extends InlineStackingLayoutManager
      */
     public List getNextKnuthElements(LayoutContext context, int alignment,
             LeafPosition restartPosition) {
-        log.trace("Restarting line breaking from index " + restartPosition.getIndex());
-        int parIndex = restartPosition.getLeafPos();
+        int parIndex = 0;
+        int restartPositionIdx = 0;
+        if (restartPosition != null) {
+            log.trace("Restarting line breaking from index " + restartPosition.getIndex());
+            parIndex = restartPosition.getLeafPos();
+            restartPositionIdx = restartPosition.getIndex();
+        }
+
+        for (int i = 0; i < parIndex; i++) {
+            knuthParagraphs.remove(0);
+        }
+        parIndex = 0;
+
         KnuthSequence paragraph = knuthParagraphs.get(parIndex);
         if (paragraph instanceof Paragraph) {
             ((Paragraph) paragraph).ignoreAtStart = 0;
             isFirstInBlock = false;
         }
-        paragraph.subList(0, restartPosition.getIndex() + 1).clear();
+        paragraph.subList(0, restartPositionIdx + 1).clear();
         Iterator<KnuthElement> iter = paragraph.iterator();
         while (iter.hasNext() && !iter.next().isBox()) {
             iter.remove();
@@ -881,12 +892,14 @@ public class LineLayoutManager extends InlineStackingLayoutManager
 
             // now try something different
             log.debug("Hyphenation possible? " + canHyphenate);
+            boolean simpleLineBreaking = fobj.getUserAgent().isSimpleLineBreaking();
+
             // Note: if allowedBreaks is guaranteed to be unchanged by alg.findBreakingPoints(),
             // the below check can be simplified to 'if (canHyphenate) ...'
             if (canHyphenate && allowedBreaks != BreakingAlgorithm.ONLY_FORCED_BREAKS) {
                 // consider every hyphenation point as a legal break
                 allowedBreaks = BreakingAlgorithm.ALL_BREAKS;
-            } else {
+            } else if (!simpleLineBreaking) {
                 // try with a higher threshold
                 maxAdjustment = 5;
             }
@@ -899,7 +912,9 @@ public class LineLayoutManager extends InlineStackingLayoutManager
                     log.debug("No set of breaking points found with maxAdjustment = "
                             + maxAdjustment + (canHyphenate ? " and hyphenation" : ""));
                 }
-                maxAdjustment = 20;
+                if (!simpleLineBreaking) {
+                    maxAdjustment = 20;
+                }
                 alg.findBreakingPoints(currPar, maxAdjustment, true, allowedBreaks);
             }
 

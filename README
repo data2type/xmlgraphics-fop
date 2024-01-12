@@ -63,7 +63,7 @@ Before you post any questions, please have a look at the FAQ at
 http://xmlgraphics.apache.org/fop/faq.html and FO help page at 
 http://xmlgraphics.apache.org/fop/fo.html.
 
-Please report bugs to bugzilla at http://issues.apache.org/bugzilla/
+Please report bugs at https://issues.apache.org/jira/browse/FOP
 
 
 How do I build FOP?
@@ -106,6 +106,18 @@ under the ./fop sub-directory.
 ==============================================================================
   RELEASE NOTES
 ==============================================================================
+
+Version 2.8
+===========
+
+Major Changes in Version 2.8
+----------------------------
+
+* Require Java 8 or later
+* Transparency color support
+* Light weight line breaking option
+
+This release also contains a number of bug fixes.
 
 Version 2.7
 ===========

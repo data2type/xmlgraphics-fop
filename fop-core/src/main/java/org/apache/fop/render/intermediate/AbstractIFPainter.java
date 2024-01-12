@@ -51,6 +51,7 @@ import org.apache.fop.fonts.FontInfo;
 import org.apache.fop.fonts.FontTriplet;
 import org.apache.fop.fonts.MultiByteFont;
 import org.apache.fop.fonts.truetype.SVGGlyphData;
+import org.apache.fop.pdf.PDFConformanceException;
 import org.apache.fop.render.ImageHandler;
 import org.apache.fop.render.ImageHandlerRegistry;
 import org.apache.fop.render.ImageHandlerUtil;
@@ -171,10 +172,12 @@ public abstract class AbstractIFPainter<T extends IFDocumentHandler> implements 
 
         try {
             drawImage(img, rect, context);
-        } catch (IOException ioe) {
+        } catch (PDFConformanceException e) {
+            throw e;
+        } catch (Exception e) {
             ResourceEventProducer eventProducer = ResourceEventProducer.Provider.get(
                     getUserAgent().getEventBroadcaster());
-            eventProducer.imageWritingError(this, ioe);
+            eventProducer.imageWritingError(this, e);
         }
     }
 
@@ -473,8 +476,18 @@ public abstract class AbstractIFPainter<T extends IFDocumentHandler> implements 
         drawText(x, y, letterSpacing, wordSpacing, dp, text);
     }
 
-    protected void drawSVGText(MultiByteFont multiByteFont, FontTriplet triplet, int x, int y, String text,
-                               IFState state) throws IFException {
+    protected boolean drawSVGText(MultiByteFont multiByteFont, FontTriplet triplet, int x, int y, String text,
+                                  IFState state) throws IFException {
+        for (int i = 0; i < text.length();) {
+            int codepoint = text.codePointAt(i);
+            if (!Character.isWhitespace(codepoint)) {
+                SVGGlyphData svg = multiByteFont.getSVG(codepoint);
+                if (svg == null) {
+                    return false;
+                }
+            }
+            i += Character.charCount(codepoint);
+        }
         int sizeMillipoints = state.getFontSize();
         Font font = getFontInfo().getFontInstance(triplet, sizeMillipoints);
         int newx = x;
@@ -494,5 +507,6 @@ public abstract class AbstractIFPainter<T extends IFDocumentHandler> implements 
             newx += font.getCharWidth(c);
             i += Character.charCount(c);
         }
+        return true;
     }
 }

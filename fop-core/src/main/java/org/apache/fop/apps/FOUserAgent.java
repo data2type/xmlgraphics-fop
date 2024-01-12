@@ -859,4 +859,8 @@ public class FOUserAgent {
     public boolean isTableBorderOverpaint() {
         return factory.isTableBorderOverpaint();
     }
+
+    public boolean isSimpleLineBreaking() {
+        return factory.isSimpleLineBreaking();
+    }
 }

@@ -589,6 +589,9 @@ public class PDFFactory {
             if (filename == null) {
                 filename = uri.getSchemeSpecificPart();
             }
+            if (scheme == null && filename.toLowerCase().endsWith(".pdf")) {
+                scheme = "file";
+            }
             if (scheme == null) {
                 return new PDFUri(uri.toASCIIString());
             } else if (scheme.equalsIgnoreCase("embedded-file")) {
@@ -1328,7 +1331,7 @@ public class PDFFactory {
                 getDocument().registerObject(stream);
             }
             CustomFont font = getCustomFont(desc);
-            if (font instanceof CIDFont) {
+            if (font instanceof CIDFont && document.getProfile().pdfAMode.getPart() < 2) {
                 CIDFont cidFont = (CIDFont)font;
                 buildCIDSet(descriptor, cidFont);
             }
