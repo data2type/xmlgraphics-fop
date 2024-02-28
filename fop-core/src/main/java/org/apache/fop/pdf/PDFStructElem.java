@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashMap;
 
 import org.apache.fop.accessibility.StructureTreeElement;
 import org.apache.fop.pdf.StandardStructureAttributes.Table;
@@ -50,7 +51,7 @@ public class PDFStructElem extends StructureHierarchyMember
      */
     protected List<PDFObject> kids;
 
-    private List<PDFDictionary> attributes;
+    private HashMap<PDFName, PDFDictionary> attributes;
 
     /**
      * Creates PDFStructElem with no entries.
@@ -173,10 +174,18 @@ public class PDFStructElem extends StructureHierarchyMember
 
     private void attachAttributes() {
         if (attributes != null) {
-            if (attributes.size() == 1) {
-                put("A", attributes.get(0));
+            ArrayList<PDFDictionary> attributeList = new ArrayList<>();
+            for (PDFName owner:
+                 attributes.keySet()) {
+                PDFDictionary attr = attributes.get(owner);
+                attr.put("O", owner);
+                attributeList.add(attr);
+            }
+
+            if (attributeList.size() == 1) {
+                put("A", attributeList.get(0));
             } else {
-                PDFArray array = new PDFArray(attributes);
+                PDFArray array = new PDFArray(attributeList);
                 put("A", array);
             }
         }
@@ -236,13 +245,16 @@ public class PDFStructElem extends StructureHierarchyMember
     }
 
     private void setTableAttributeRowColumnSpan(String typeSpan, int span) {
-        PDFDictionary attribute = new PDFDictionary();
-        attribute.put("O", Table.NAME);
-        attribute.put(typeSpan, span);
+        setAttribute(Table.NAME, typeSpan, span);
+    }
+
+    protected void setAttribute(PDFName owner, String key, Object value){
         if (attributes == null) {
-            attributes = new ArrayList<PDFDictionary>(2);
+            attributes = new HashMap<>();
         }
-        attributes.add(attribute);
+        PDFDictionary attribute = attributes.containsKey(owner) ? attributes.get(owner) : new PDFDictionary();
+        attribute.put(key, value);
+        attributes.put(owner, attribute);
     }
 
     public List<PDFObject> getKids() {
