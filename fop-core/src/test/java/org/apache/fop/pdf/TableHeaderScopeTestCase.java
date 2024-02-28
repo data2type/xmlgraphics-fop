@@ -19,13 +19,12 @@
 
 package org.apache.fop.pdf;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.verification.VerificationMode;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -92,7 +91,7 @@ public class TableHeaderScopeTestCase {
     private void scopeMustBeAdded(VerificationMode nTimes) {
         PDFStructElem structElem = mock(PDFStructElem.class);
         controller.addTableHeaderScopeAttribute(structElem, Scope.COLUMN);
-        verify(structElem, nTimes).put(eq(ATTRIBUTE_ENTRY), any());
+        verify(structElem, nTimes).setTableHeaderScope(any());
     }
 
     @Test
@@ -103,29 +102,17 @@ public class TableHeaderScopeTestCase {
     }
 
     private void scopeAttributeMustBeAdded(Scope scope) {
-        PDFStructElem structElem = mock(PDFStructElem.class);
+        PDFStructElem structElem = new PDFStructElem();
         Scope.addScopeAttribute(structElem, scope);
-        verify(structElem).put(eq(ATTRIBUTE_ENTRY), scopeAttribute(scope));
+        structElem.attachAttributes();
+        verifyScope(structElem, scope);
+    }
+    private void verifyScope(PDFStructElem elem, Scope expectedScope){
+        Assert.assertTrue(elem.get(ATTRIBUTE_ENTRY) instanceof PDFDictionary);
+        PDFDictionary attributes = (PDFDictionary)elem.get(ATTRIBUTE_ENTRY);
+        Assert.assertEquals(StandardStructureAttributes.Table.NAME, attributes.get("O"));
+        Assert.assertEquals(expectedScope.getName().toString(), attributes.get("Scope").toString());
     }
 
-    private PDFDictionary scopeAttribute(Scope scope) {
-        return argThat(new IsScopeAttribute(scope));
-    }
-
-    private static class IsScopeAttribute implements ArgumentMatcher<PDFDictionary> {
-
-        private final Scope expectedScope;
-
-        public IsScopeAttribute(Scope expectedScope) {
-            this.expectedScope = expectedScope;
-        }
-
-        @Override
-        public boolean matches(PDFDictionary argument) {
-            PDFDictionary attribute = argument;
-            return "/Table".equals(attribute.get("O").toString())
-                    && expectedScope.getName().toString().equals(attribute.get("Scope").toString());
-        }
-    }
 
 }
