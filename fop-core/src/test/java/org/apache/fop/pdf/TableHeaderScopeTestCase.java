@@ -101,6 +101,17 @@ public class TableHeaderScopeTestCase {
         }
     }
 
+
+    @Test
+    public void scopeAndColspan() {
+        PDFStructElem structElem = new PDFStructElem();
+        Scope.addScopeAttribute(structElem, Scope.ROW);
+        structElem.setTableAttributeColSpan(2);
+        structElem.attachAttributes();
+        verifyScope(structElem, Scope.ROW);
+        verifyColspan(structElem, 2);
+    }
+
     private void scopeAttributeMustBeAdded(Scope scope) {
         PDFStructElem structElem = new PDFStructElem();
         Scope.addScopeAttribute(structElem, scope);
@@ -114,5 +125,11 @@ public class TableHeaderScopeTestCase {
         Assert.assertEquals(expectedScope.getName().toString(), attributes.get("Scope").toString());
     }
 
+    private void verifyColspan(PDFStructElem elem, int span){
+        Assert.assertTrue(elem.get(ATTRIBUTE_ENTRY) instanceof PDFDictionary);
+        PDFDictionary attributes = (PDFDictionary)elem.get(ATTRIBUTE_ENTRY);
+        Assert.assertEquals(StandardStructureAttributes.Table.NAME, attributes.get("O"));
+        Assert.assertEquals(span, attributes.get("ColSpan"));
+    }
 
 }
