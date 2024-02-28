@@ -56,10 +56,7 @@ public final class StandardStructureAttributes {
              * Sets the given scope on the given table header element.
              */
             static void addScopeAttribute(PDFStructElem th, Scope scope) {
-                PDFDictionary scopeAttribute = new PDFDictionary();
-                scopeAttribute.put("O", Table.NAME);
-                scopeAttribute.put("Scope", scope.getName());
-                th.put("A", scopeAttribute);
+                th.setTableHeaderScope(scope.getName());
             }
         }
     }

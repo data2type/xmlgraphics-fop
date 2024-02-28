@@ -253,6 +253,10 @@ public class PDFStructElem extends StructureHierarchyMember implements Structure
         return kidsAttached;
     }
 
+    public void setTableHeaderScope(PDFName scope) {
+        setAttribute(Table.NAME, "Scope", scope);
+    }
+
     public void setTableAttributeColSpan(int colSpan) {
         setTableAttributeRowColumnSpan("ColSpan", colSpan);
     }
