@@ -172,7 +172,7 @@ public class PDFStructElem extends StructureHierarchyMember
         super.writeDictionary(out, textBuffer);
     }
 
-    private void attachAttributes() {
+    protected void attachAttributes() {
         if (attributes != null) {
             ArrayList<PDFDictionary> attributeList = new ArrayList<>();
             for (PDFName owner:
