@@ -20,23 +20,28 @@
 package org.apache.fop.cli;
 
 // java
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Vector;
 
 import javax.swing.UIManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
 
 import org.apache.fop.Version;
 import org.apache.fop.accessibility.Accessibility;
@@ -360,9 +365,9 @@ public class CommandLineOptions {
             } else if (args[i].equals("-a")) {
                 this.renderingOptions.put(Accessibility.ACCESSIBILITY, Boolean.TRUE);
             } else if (args[i].equals("-noautopdftag")) {
-                this.renderingOptions.put(Accessibility.PDF_AUTO_TAG,Boolean.FALSE);
-            } else if (args[i].equals("-rolemap") ) {
-                i = i + parseRolemapFile(args,i);
+                this.renderingOptions.put(Accessibility.PDF_AUTO_TAG, Boolean.FALSE);
+            } else if (args[i].equals("-rolemap")) {
+                i = i + parseRolemapFile(args, i);
             } else if (args[i].equals("-v")) {
                 /* verbose mode although users may expect version; currently just print the version */
                 printVersion();
@@ -840,37 +845,37 @@ public class CommandLineOptions {
         }
     }
 
-    private void loadRolemapPropertiesFromXML( final Document xmlDoc ) {
+    private void loadRolemapPropertiesFromXML(final Document xmlDoc) {
 
         Element element = xmlDoc.getDocumentElement();
         org.w3c.dom.NodeList list = element.getElementsByTagName("autotagging");
-        for ( int i = 0 ; i < list.getLength() ; i++ ) {
+        for (int i = 0; i < list.getLength(); i++) {
             NamedNodeMap nodeMap = list.item(i).getAttributes();
             String name = null;
             String value = null;
-            for ( int j = 0 ; j < nodeMap.getLength() ; j++ ) {
+            for (int j = 0; j < nodeMap.getLength(); j++) {
                 Node node = nodeMap.item(j);
-                if ( node.getNodeName().equals("name") ) {
+                if (node.getNodeName().equals("name")) {
                     name = node.getNodeValue();
-                } else if ( node.getNodeName().equals("value")) {
+                } else if (node.getNodeName().equals("value")) {
                     value = node.getNodeValue();
                 }
             }
 
-            if ( name != null && value != null ) {
-                roleProperties.setProperty(name,value);
+            if (name != null && value != null) {
+                roleProperties.setProperty(name, value);
             }
         }
 
     }
 
-    private int parseRolemapFile( String[] args , int i ) throws FOPException {
+    private int parseRolemapFile(String[] args , int i) throws FOPException {
 
-        if ( i+1 >= args.length || isOption(args[i+1]) ) {
+        if (i + 1 >= args.length || isOption(args[i + 1])) {
             throw new FOPException("you must specify the rolemap property file.");
         }
 
-        String filename = args[i+1];
+        String filename = args[i + 1];
         File rolemapfile = new File(filename);
 
 
@@ -879,16 +884,21 @@ public class CommandLineOptions {
             Document xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(rolemapfile);
             loadRolemapPropertiesFromXML(xmlDoc);
             return 1;
-        } catch ( Exception cause ) {
+        } catch (Exception cause) {
             // If that fails, ...
         }
 
         // ..., we try to load a property file.
         try {
             FileInputStream fis = new FileInputStream(rolemapfile);
-            this.roleProperties.load(fis);
-            fis.close();
-        } catch ( Exception cause ) {
+            try {
+                this.roleProperties.load(fis);
+            } catch (IOException e) {
+                throw new FOPException(e);
+            } finally {
+                fis.close();
+            }
+        } catch (Exception cause) {
             throw new FOPException(cause);
         }
 

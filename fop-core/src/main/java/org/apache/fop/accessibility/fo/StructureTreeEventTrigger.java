@@ -19,19 +19,19 @@
 
 package org.apache.fop.accessibility.fo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Stack;
 
 import javax.xml.XMLConstants;
 
-import org.apache.fop.accessibility.Accessibility;
-import org.apache.fop.fo.flow.table.*;
-import org.apache.fop.fo.properties.ListProperty;
-import org.apache.fop.layoutmgr.list.ListItemLayoutManager;
-import org.apache.fop.pdf.PDFStructElem;
-import org.apache.fop.pdf.StandardStructureTypes;
-import org.apache.tools.ant.util.StringUtils;
 import org.xml.sax.helpers.AttributesImpl;
 
+import org.apache.fop.accessibility.Accessibility;
 import org.apache.fop.accessibility.StructureTreeElement;
 import org.apache.fop.accessibility.StructureTreeEventHandler;
 import org.apache.fop.fo.FOEventHandler;
@@ -60,6 +60,12 @@ import org.apache.fop.fo.flow.PageNumberCitationLast;
 import org.apache.fop.fo.flow.RetrieveMarker;
 import org.apache.fop.fo.flow.RetrieveTableMarker;
 import org.apache.fop.fo.flow.Wrapper;
+import org.apache.fop.fo.flow.table.Table;
+import org.apache.fop.fo.flow.table.TableBody;
+import org.apache.fop.fo.flow.table.TableCell;
+import org.apache.fop.fo.flow.table.TableFooter;
+import org.apache.fop.fo.flow.table.TableHeader;
+import org.apache.fop.fo.flow.table.TableRow;
 import org.apache.fop.fo.pagination.Flow;
 import org.apache.fop.fo.pagination.LayoutMasterSet;
 import org.apache.fop.fo.pagination.PageSequence;
@@ -67,8 +73,10 @@ import org.apache.fop.fo.pagination.Root;
 import org.apache.fop.fo.pagination.StaticContent;
 import org.apache.fop.fo.properties.CommonAccessibilityHolder;
 import org.apache.fop.fo.properties.CommonHyphenation;
+import org.apache.fop.pdf.PDFStructElem;
 import org.apache.fop.util.LanguageTags;
 import org.apache.fop.util.XMLUtil;
+
 
 /**
  * A bridge between {@link FOEventHandler} and {@link StructureTreeEventHandler}.
@@ -108,9 +116,9 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     }
 
-    public StructureTreeEventTrigger
-            (StructureTreeEventHandler structureTreeEventHandler,final boolean autoPDFTag,
-             final Properties roleProperties) {
+    public StructureTreeEventTrigger(StructureTreeEventHandler structureTreeEventHandler,
+                                     final boolean autoPDFTag,
+                                     final Properties roleProperties) {
 
         this.structureTreeEventHandler = structureTreeEventHandler;
         this.autoPDFTag = autoPDFTag;
@@ -429,7 +437,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
     @Override
     public void startFootnoteBody(FootnoteBody body) {
         StructureTreeElement structElem = startElement(body);
-        if(structElem instanceof PDFStructElem && body.getId() != null){
+        if (structElem instanceof PDFStructElem && body.getId() != null) {
             PDFStructElem pdfStructElem = (PDFStructElem) structElem;
             pdfStructElem.put("/ID", body.getId());
         }
@@ -509,9 +517,9 @@ class StructureTreeEventTrigger extends FOEventHandler {
     }
 
     private LinkedList<Boolean> tagged = new LinkedList<Boolean>();
-    private FONode lastParagraph = null;
-    private String lastParagraphsLocalName = null;
-    private AttributesImpl lastParagraphsAttributes = null;
+    private FONode lastParagraph;
+    private String lastParagraphsLocalName;
+    private AttributesImpl lastParagraphsAttributes;
 
     private StructureTreeElement startElement(FONode node) {
 
@@ -533,12 +541,13 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     private void startElementWithID(FONode node, AttributesImpl attributes) {
 
-        if ( !autoPDFTag ) {
-            if ( lastParagraph != null ) {
-                StructureTreeElement element = structureTreeEventHandler.startNode(lastParagraphsLocalName, lastParagraphsAttributes,
+        if (!autoPDFTag) {
+            if (lastParagraph != null) {
+                StructureTreeElement element = structureTreeEventHandler.startNode(lastParagraphsLocalName,
+                        lastParagraphsAttributes,
                         node.getParent().getStructureTreeElement());
                 addTaggingAttributes(element, lastParagraphsAttributes);
-                tagged.set(0,Boolean.TRUE);
+                tagged.set(0, Boolean.TRUE);
 
             }
         }
@@ -576,17 +585,17 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     private StructureTreeElement startElement(FONode node, AttributesImpl attributes) {
 
-        final String localName = node.getLocalName();
-        final String roleValue = roleProperties.getProperty(localName);
+        String localName = node.getLocalName();
+        String roleValue = roleProperties.getProperty(localName);
 
         if (node instanceof CommonAccessibilityHolder) {
             addRole((CommonAccessibilityHolder) node, attributes);
         }
 
-        if ( localName != null && roleValue != null) {
+        if (roleValue != null) {
             String role = attributes.getValue("role");
             role = role != null ? role.trim() : null;
-            if("".equals(role)){
+            if ("".equals(role)) {
                 removeNoNamespaceAttribute(attributes, "role");
             } else if (role == null) {
                 addNoNamespaceAttribute(attributes, "role", roleValue);
@@ -599,7 +608,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
         lastParagraphsLocalName = null;
         lastParagraphsAttributes = null;
 
-        if ( !autoPDFTag  ) {
+        if (!autoPDFTag) {
             String role = attributes.getValue("role");
             if (role == null) {
                 lastParagraph = node;
@@ -627,12 +636,14 @@ class StructureTreeEventTrigger extends FOEventHandler {
         attributes.removeAttribute(attributes.getIndex("", name));
     }
 
-    private void convertRoles(AttributesImpl attributes){
+    private void convertRoles(AttributesImpl attributes) {
         String role = attributes.getValue("role");
-        if(role == null)
+        if (role == null) {
             return;
-        if(!role.contains("?"))
+        }
+        if (!role.contains("?")) {
             return;
+        }
         String eRole = role.substring(0, role.indexOf("?"));
         String roleAttr = role.substring(role.indexOf("?") + 1);
         removeNoNamespaceAttribute(attributes, "role");
@@ -640,27 +651,32 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
         String[] roleAttrs = parseRoleData(roleAttr);
 
-        for (String rAttr:
-             roleAttrs) {
-            if(rAttr.contains("=")){
+        for (String rAttr
+                : roleAttrs) {
+            if (rAttr.contains("=")) {
                 String name = rAttr.substring(0, rAttr.indexOf('='));
                 String value = rAttr.substring(rAttr.indexOf('=') + 1);
-                addAttribute(attributes, Accessibility.ACCESSIBILITY_NSURI, name, ExtensionElementMapping.STANDARD_PREFIX, value);
+                addAttribute(attributes,
+                        Accessibility.ACCESSIBILITY_NSURI,
+                        name,
+                        ExtensionElementMapping.STANDARD_PREFIX,
+                        value);
             }
         }
 
     }
 
-    private static String[] parseRoleData(String data){
+    private static String[] parseRoleData(String data) {
         ArrayList<String> result = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         char[] chars = data.toCharArray();
         for (int i = 0; i < chars.length; i++) {
-            switch (chars[i]){
+            switch (chars[i]) {
                 case '\\':
-                    if(chars.length == i+1)
+                    if (chars.length == i + 1) {
                         throw new IllegalArgumentException("Bad escaping in role data " + data);
-                    buffer.append(chars[i+1]);
+                    }
+                    buffer.append(chars[i + 1]);
                     i++;
                     break;
                 case ';':
@@ -671,17 +687,17 @@ class StructureTreeEventTrigger extends FOEventHandler {
                     buffer.append(chars[i]);
             }
         }
-        if(buffer.length() > 0){
+        if (buffer.length() > 0) {
             result.add(buffer.toString());
         }
         return result.toArray(new String[result.size()]);
     }
 
-    private void addTaggingAttributes(StructureTreeElement element, AttributesImpl attributes){
-        if(element instanceof PDFStructElem){
+    private void addTaggingAttributes(StructureTreeElement element, AttributesImpl attributes) {
+        if (element instanceof PDFStructElem) {
             PDFStructElem pdfStructElem = (PDFStructElem) element;
             for (int i = 0; i < attributes.getLength(); i++) {
-                if(Accessibility.ACCESSIBILITY_NSURI.equals(attributes.getURI(i))){
+                if (Accessibility.ACCESSIBILITY_NSURI.equals(attributes.getURI(i))) {
                     pdfStructElem.put(attributes.getLocalName(i), attributes.getValue(i));
                 }
             }

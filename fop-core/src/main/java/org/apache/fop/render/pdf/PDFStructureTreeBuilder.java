@@ -19,7 +19,6 @@
 
 package org.apache.fop.render.pdf;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
@@ -372,7 +371,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
 
     public static PDFStructElem createStructureElement(String name, StructureHierarchyMember parent,
-                Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster ) {
+                Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
 
 
         StructureElementBuilder builder = BUILDERS.get(name);

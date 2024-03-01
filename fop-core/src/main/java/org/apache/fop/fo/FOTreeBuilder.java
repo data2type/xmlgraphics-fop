@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import org.apache.fop.render.pdf.PDFStructureTreeBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -111,7 +110,7 @@ public class FOTreeBuilder extends DefaultHandler {
                 foUserAgent, outputFormat, stream);
         if (userAgent.isAccessibilityEnabled()) {
             foEventHandler = new FO2StructureTreeConverter(
-                    foUserAgent.getStructureTreeEventHandler(), foEventHandler,foUserAgent.getRoleProperties());
+                    foUserAgent.getStructureTreeEventHandler(), foEventHandler, foUserAgent.getRoleProperties());
         }
         builderContext = new FOTreeBuilderContext();
         builderContext.setPropertyListMaker(new PropertyListMaker() {

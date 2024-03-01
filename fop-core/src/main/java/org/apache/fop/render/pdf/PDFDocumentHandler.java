@@ -32,7 +32,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.fop.accessibility.Accessibility;
 import org.apache.xmlgraphics.xmp.Metadata;
 
 import org.apache.fop.accessibility.StructureTreeEventHandler;

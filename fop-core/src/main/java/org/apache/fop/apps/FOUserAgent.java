@@ -735,7 +735,7 @@ public class FOUserAgent {
      */
     public boolean isAutoPDFTaggingEnabled() {
         Boolean enabled = (Boolean)this.getRendererOptions().get(Accessibility.PDF_AUTO_TAG);
-        if ( enabled != null ) {
+        if (enabled != null) {
             return enabled.booleanValue();
         } else {
             return true;
