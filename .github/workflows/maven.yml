@@ -7,7 +7,7 @@ on:
   push:
     branches: [ "main", "github-workflow-test" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "github-workflow-test" ]
 
 jobs:
   build:
