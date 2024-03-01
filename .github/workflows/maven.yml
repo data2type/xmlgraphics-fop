@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "github-workflow-test" ]
   pull_request:
     branches: [ "main" ]
 
@@ -23,7 +23,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package checkstyle:check findbugs:check --file pom.xml
+      run: mvn -B package checkstyle:check findbugs:check --file pom.xml -DaltDeploymentRepository=com.github.nkutsche::default::https://maven.pkg.github.com/data2type/xmlgraphics-fop
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
