@@ -25,9 +25,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.fop.accessibility.StructureTreeElement;
 import org.apache.fop.pdf.StandardStructureAttributes.Table;
@@ -175,10 +176,10 @@ public class PDFStructElem extends StructureHierarchyMember
     protected void attachAttributes() {
         if (attributes != null) {
             ArrayList<PDFDictionary> attributeList = new ArrayList<>();
-            for (PDFName owner:
-                 attributes.keySet()) {
-                PDFDictionary attr = attributes.get(owner);
-                attr.put("O", owner);
+            for (Map.Entry<PDFName, PDFDictionary> owner
+                    : attributes.entrySet()) {
+                PDFDictionary attr = owner.getValue();
+                attr.put("O", owner.getKey());
                 attributeList.add(attr);
             }
 
@@ -252,7 +253,7 @@ public class PDFStructElem extends StructureHierarchyMember
         setAttribute(Table.NAME, typeSpan, span);
     }
 
-    protected void setAttribute(PDFName owner, String key, Object value){
+    protected void setAttribute(PDFName owner, String key, Object value) {
         if (attributes == null) {
             attributes = new HashMap<>();
         }

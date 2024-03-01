@@ -118,14 +118,14 @@ public class TableHeaderScopeTestCase {
         structElem.attachAttributes();
         verifyScope(structElem, scope);
     }
-    private void verifyScope(PDFStructElem elem, Scope expectedScope){
+    private void verifyScope(PDFStructElem elem, Scope expectedScope) {
         Assert.assertTrue(elem.get(ATTRIBUTE_ENTRY) instanceof PDFDictionary);
         PDFDictionary attributes = (PDFDictionary)elem.get(ATTRIBUTE_ENTRY);
         Assert.assertEquals(StandardStructureAttributes.Table.NAME, attributes.get("O"));
         Assert.assertEquals(expectedScope.getName().toString(), attributes.get("Scope").toString());
     }
 
-    private void verifyColspan(PDFStructElem elem, int span){
+    private void verifyColspan(PDFStructElem elem, int span) {
         Assert.assertTrue(elem.get(ATTRIBUTE_ENTRY) instanceof PDFDictionary);
         PDFDictionary attributes = (PDFDictionary)elem.get(ATTRIBUTE_ENTRY);
         Assert.assertEquals(StandardStructureAttributes.Table.NAME, attributes.get("O"));
