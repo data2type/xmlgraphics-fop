@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main", "github-workflow-test" ]
+    branches: [ "main", "feature/accessibility-upgrade" ]
   pull_request:
-    branches: [ "main", "github-workflow-test" ]
+    branches: [ "main", "feature/accessibility-upgrade" ]
 
 jobs:
   build:
