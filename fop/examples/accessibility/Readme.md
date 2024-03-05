@@ -2,7 +2,6 @@
 
 To execute the given examples you have to do the following:
 
-1. Run `mvn install -f ../../../pom.xml` to install the latest developement version into your local Maven Repository.
 1. Run `ant` to execute the tests.
 1. Find the results in [_results](_results/) (for the laizy ones the results are already commited here)
 
@@ -64,7 +63,7 @@ Tag structure of the [adjusted version](_results/rolemap.pdf) (with a specific r
 
 ## Example tag-attributes
 
-To specify attributes of PDF tags, a special syntax for roles has been introduced (based on data URLs). If you define a <fo:block role="P?attr=value"> it will be converted to a PDF tag P with the attribute "attr" which has the value "value".
+To specify attributes of PDF tags, a special syntax for roles has been introduced (based on data URLs). If you define a `<fo:block role="P?attr=value">` it will be converted to a PDF tag `P` with the attribute `"attr"` which has the value `"value"`.
 
 Relevant [FO input](tag-attributes/test.fo):
 
