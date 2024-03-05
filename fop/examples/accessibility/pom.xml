@@ -17,5 +17,12 @@
       <version>2.9.0a-SNAPSHOT</version>
     </dependency>
   </dependencies>
+    
+  <repositories>
+    <repository>
+      <id>de.data2type.repo</id>
+      <url>https://repo.data2type.de/repository/maven-public/</url>
+    </repository>
+  </repositories>
   
 </project>
