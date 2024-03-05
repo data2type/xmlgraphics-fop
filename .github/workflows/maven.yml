@@ -32,7 +32,7 @@ jobs:
       run: mvn -B package checkstyle:check findbugs:check --file pom.xml
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltSnapshotDeploymentRepository=de.data2type.repo::default::https://repo.data2type.de/repository/maven-snapshots/ -DaltReleaseDeploymentRepository=de.data2type.repo::default::https://repo.data2type.de/repository/maven-releases/
+      run: mvn deploy -DaltSnapshotDeploymentRepository=de.data2type.repo::default::https://repo.data2type.de/repository/maven-snapshots/ -DaltReleaseDeploymentRepository=de.data2type.repo::default::https://repo.data2type.de/repository/maven-releases/
       env:
         MAVEN_USERNAME: ${{ secrets.D2T_REPO_DEPLOYER_USER }}
         MAVEN_PASSWORD: ${{ secrets.D2T_REPO_DEPLOYER_PW }}
