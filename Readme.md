@@ -46,4 +46,4 @@ The distributions published Maven artifacts are marked with the base FOP version
 
 ## Authorship of the Derivation Work
 
-The adjustmens of this project was commissioned by the [BSI](https://www.bsi.bund.de/EN/Home/home_node.html) (Federal Office for Information Security). Data2type as publisher is just one of the implementers.
+The adjustmens of this project was commissioned by the [BSI](https://www.bsi.bund.de/EN/Home/home_node.html) (German Federal Office for Information Security). Data2type as publisher is just one of the implementers.
