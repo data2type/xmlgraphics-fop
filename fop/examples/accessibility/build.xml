@@ -91,8 +91,23 @@
             <arg line='-pdf "${testresults}/fop-3165.pdf"'/>
         </java>
     </target>
+
+    <target name="fop-3167" depends="init">
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath_base}" failonerror="true"
+            fork="true">
+            <arg line='-c "${basedir}/fop_ua.xconf"'/>
+            <arg line='-fo "${basedir}/fop-3167/test.fo"'/>
+            <arg line='-pdf "${testresults}/fop-3167_base.pdf"'/>
+        </java>
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+            <arg line='-c "${basedir}/fop_ua.xconf"'/>
+            <arg line='-fo "${basedir}/fop-3167/test.fo"'/>
+            <arg line='-pdf "${testresults}/fop-3167.pdf"'/>
+        </java>
+    </target>
     
-    <target name="all" depends="noautopdftag, rolemap, tag-attributes, fop-3165"/>
+    <target name="all" depends="noautopdftag, rolemap, tag-attributes, fop-3165, fop-3167"/>
 
 
 
