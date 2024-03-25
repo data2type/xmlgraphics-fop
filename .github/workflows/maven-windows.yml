@@ -5,9 +5,9 @@ name: Java CI with Maven on Windows
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "release/**" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "release/**" ]
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package checkstyle:check findbugs:check --file pom.xml
+      run: mvn -B install checkstyle:check findbugs:check --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
