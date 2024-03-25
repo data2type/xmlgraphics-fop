@@ -76,3 +76,35 @@ You find this Title, ID, Lang and Actual Test in the PDF attributes of [the resu
 
 ![docs/tag-attributes.jpg](docs/tag-attributes.jpg "Tag structure of tag-attributes.pdf")
 
+## Table tagging in PDF/UA mode
+
+### Example for FOP-3165
+
+This example demonstrates the table rendering of FOP with active PDF/UA mode. The general subject was discussed in the JIRA issue [FOP-3165](https://issues.apache.org/jira/browse/FOP-3165) In opposite to the examples above this uses the FOP config file [fop_ua.xconf](fop_ua.xconf) that ensures PDF/UA mode is active. While the base line FOP 2.9 skips the PDF tags for `table-header`, `table-body` and `table-footer`, the FOP 2.9a preserves them:
+
+![docs/fop-3165.jpg](docs/fop-3165.jpg "Table tag structure of fop-3165.pdf")
+
+The base line FOP produce the following tag tree:
+
+![docs/fop-3165_base.jpg](docs/fop-3165_base.jpg "Table tag structure of fop-3165_base.pdf")
+
+### Exmple for FOP-3167
+
+This example demonstrates the fix for the JIRA issue [FOP-3167](https://issues.apache.org/jira/browse/FOP-3167). 
+
+Relevant [FO input](fop-3167/test.fo):
+
+```xml
+<fo:table-cell number-columns-spanned="2" role="TH">
+    <fo:block>head A</fo:block>
+</fo:table-cell>
+```
+
+Attributes of the corresponding `TH` tag in PDF result using FOP 2.9:
+
+![docs/fop-3167_base.jpg](docs/fop-3167_base.jpg "The TH tag has a Scope attribute with the value 'None'")
+
+Same tag attributes in PDF result using FOP 2.9a:
+
+![docs/fop-3167.jpg](docs/fop-3167.jpg "The TH tag has a Scope attribute with the value 'Column'")
+
