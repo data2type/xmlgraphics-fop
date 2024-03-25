@@ -11,7 +11,7 @@
   <parent>
     <groupId>de.data2type.forks.fop</groupId>
     <artifactId>fop-parent</artifactId>
-    <version>2.9.0a-SNAPSHOT</version>
+    <version>2.9a</version>
   </parent>
 
   <dependencies>
