@@ -33,7 +33,7 @@ Now you are able to add the FOP as project dependency:
 
 ```xml
 <dependency>
-    <groupId>de.data2type.fop</groupId>
+    <groupId>de.data2type.forks.fop</groupId>
     <artifactId>fop</artifactId>
     <version>2.9a</version>
 </dependency>

@@ -2,13 +2,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>de.data2type.fop</groupId>
+  <groupId>de.data2type.forks.fop</groupId>
   <artifactId>fop-events</artifactId>
   <name>Apache FOP Events</name>
   <description>XML Graphics Format Object Processor Events</description>
 
   <parent>
-    <groupId>de.data2type.fop</groupId>
+    <groupId>de.data2type.forks.fop</groupId>
     <artifactId>fop-parent</artifactId>
     <version>2.9.0a-SNAPSHOT</version>
   </parent>
