@@ -1,0 +1,17 @@
+<fop version="1.0">
+	<!-- Accessibility -->
+    <accessibility>true</accessibility>
+    <renderers>
+        <renderer mime="application/pdf">
+            <fonts>
+                <!-- Roboto Mono -->
+                <font kerning="yes" embed-url="../fonts/roboto_mono/RobotoMono-Regular.ttf" embedding-mode="subset">
+                    <font-triplet name="Roboto Mono" style="normal" weight="normal"/>
+                </font>
+                <!-- register all the fonts found in a directory -->
+                <auto-detect/>
+            </fonts>
+            <pdf-ua-mode>PDF/UA-1</pdf-ua-mode>
+        </renderer>
+    </renderers>
+</fop>

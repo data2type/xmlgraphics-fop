@@ -21,8 +21,17 @@
             <arg value="dependency:build-classpath"/>
             <arg value="-Dmdep.outputFile=${classpathfile}"/>
         </java>
+
+        <java classpath="${toString:mvnw.classpath}" classname="org.apache.maven.wrapper.MavenWrapperMain" fork="true">
+            <sysproperty key="maven.multiModuleProjectDirectory" path="fop"/>
+            <arg line="-f ${basedir}/pom.xml"/>
+            <arg value="dependency:build-classpath"/>
+            <arg value="-Dmdep.outputFile=${classpathfile}_base"/>
+            <arg line="-P !default,baseline"/>
+        </java>
         
         <loadfile property="classpath" srcfile="${classpathfile}"/>
+        <loadfile property="classpath_base" srcfile="${classpathfile}_base"/>
 
         <mkdir dir="${testresults}"/>
     </target>
@@ -67,8 +76,23 @@
             <arg line='-pdf "${testresults}/tag-attributes.pdf"'/>
         </java>
     </target>
+
+    <target name="fop-3165" depends="init">
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath_base}" failonerror="true"
+            fork="true">
+            <arg line='-c "${basedir}/fop_ua.xconf"'/>
+            <arg line='-fo "${basedir}/fop-3165/test.fo"'/>
+            <arg line='-pdf "${testresults}/fop-3165_base.pdf"'/>
+        </java>
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="true"
+            fork="true">
+            <arg line='-c "${basedir}/fop_ua.xconf"'/>
+            <arg line='-fo "${basedir}/fop-3165/test.fo"'/>
+            <arg line='-pdf "${testresults}/fop-3165.pdf"'/>
+        </java>
+    </target>
     
-    <target name="all" depends="noautopdftag, rolemap, tag-attributes"/>
+    <target name="all" depends="noautopdftag, rolemap, tag-attributes, fop-3165"/>
 
 
 

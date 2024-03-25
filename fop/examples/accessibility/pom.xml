@@ -9,14 +9,6 @@
   <version>2.9.0a-SNAPSHOT</version>
   <name>Apache FOP All-In-One</name>
   <description>XML Graphics Format Object Processor All-In-One</description>
-  
-  <dependencies>
-    <dependency>
-      <groupId>de.data2type.fop</groupId>
-      <artifactId>fop</artifactId>
-      <version>2.9.0a-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
     
   <repositories>
     <repository>
@@ -24,5 +16,31 @@
       <url>https://repo.data2type.de/repository/maven-public/</url>
     </repository>
   </repositories>
+    
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>de.data2type.fop</groupId>
+                    <artifactId>fop</artifactId>
+                    <version>2.9.0a-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>baseline</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.xmlgraphics</groupId>
+                    <artifactId>fop</artifactId>
+                    <version>2.9</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
   
 </project>
