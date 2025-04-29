@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://xmlgraphics.apache.org/fop/intermediate"
+          xmlns:foi="http://xmlgraphics.apache.org/fop/internal"
+          xmlns:nav="http://xmlgraphics.apache.org/fop/intermediate/document-navigation"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          version="2.0">
+   <header>
+      <locale xml:lang="en"/>
+      <pdf:catalog>
+         <pdf:dictionary key="ViewerPreferences">
+            <pdf:boolean key="DisplayDocTitle">true</pdf:boolean>
+         </pdf:dictionary>
+      </pdf:catalog>
+      <x:xmpmeta xmlns:x="adobe:ns:meta/">
+         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
+               <dc:title>A11y sample for FOP issue #1</dc:title>
+            </rdf:Description>
+         </rdf:RDF>
+      </x:xmpmeta>
+   </header>
+   <page-sequence xml:lang="en" xml:space="preserve"><structure-tree xmlns:fox="http://xmlgraphics.apache.org/fop/extensions"><fo:flow flow-name="xsl-region-body"><fo:block><marked-content foi:struct-id="0"/></fo:block></fo:flow></structure-tree><page index="0" name="1" page-master-name="sample" width="594720" height="792000"><page-header/><content><viewport width="594720" height="792000"><font family="any" style="normal" weight="400" variant="normal" size="12000" color="#000000"/><text x="0" y="9996" foi:struct-ref="0">block 1</text></viewport></content><page-trailer/></page></page-sequence>
+   <trailer/>
+</document>

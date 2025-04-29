@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+    <fo:layout-master-set>
+        <fo:simple-page-master master-name="sample">
+            <fo:region-body margin-top="10mm"/>
+            <fo:region-before extent="10mm"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:declarations>
+        <x:xmpmeta xmlns:x="adobe:ns:meta/">
+            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <dc:title>A11y sample for FOP issue 3165</dc:title>
+                </rdf:Description>
+            </rdf:RDF>
+        </x:xmpmeta>
+    </fo:declarations>
+    <fo:page-sequence master-reference="sample" font-family="Roboto Mono">
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block/>
+            <fo:block>
+                <fo:table>
+                    <fo:table-header>
+                        <fo:table-row>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>HEAD A </fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>HEAD B</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    </fo:table-header>
+                    <fo:table-footer>
+                        <fo:table-row>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>FOOT A</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>FOOT B</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    </fo:table-footer>
+                    <fo:table-body>
+                        <fo:table-row>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>CELL A1</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>CELL B1</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                        <fo:table-row>
+                            <fo:table-cell border="1px solid black" number-columns-spanned="2">
+                                <fo:block>CELL A2-B2</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                        <fo:table-row>
+                            <fo:table-cell border="1px solid black" number-rows-spanned="2">
+                                <fo:block>CELL A3-A4</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>CELL B3</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                        <fo:table-row>
+                            <fo:table-cell border="1px solid black">
+                                <fo:block>CELL B4</fo:block>
+                            </fo:table-cell>
+                        </fo:table-row>
+                    </fo:table-body>
+                </fo:table>
+            </fo:block>
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>
