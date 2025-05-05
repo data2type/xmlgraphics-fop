@@ -65,6 +65,15 @@
         </java>
     </target>
     
+    <target name="i_13" depends="init">
+        <java classname="org.apache.fop.cli.Main" classpath="${classpath}" failonerror="false"
+            fork="true">
+            <arg line='-c "${basedir}/cfg/fop_ua.xconf"'/>
+            <arg line='-fo "${basedir}/fo/issue_13.fo"'/>
+            <arg line='-at application/pdf "${testresults}/issue_13.at.xml"'/>
+        </java>
+    </target>
+    
     <target name="all" depends="i_1, i_2, i_3, i_4, i_5, i_6, i_7, i_8, i_9, i_10"/>
 
     <macrodef name="issue">
