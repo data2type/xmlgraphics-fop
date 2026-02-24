@@ -17,31 +17,21 @@
 
 /* $Id$ */
 
-package org.apache.fop.intermediate;
+package org.apache.fop.tagging;
 
-import org.w3c.dom.Element;
+import org.w3c.dom.Document;
 
-import org.apache.fop.check.ChecksFactory;
+import org.apache.fop.check.Check;
 
 /**
- * A factory class for creating {@link IFCheck} instances.
+ * Check interface for PDF tagging checks.
  */
-final class IFChecksFactory extends ChecksFactory<IFCheck> {
+public interface PdfTaggingCheck extends Check {
 
-    IFChecksFactory() {
-        registerCheckFactory("true", new CheckFactory<IFCheck>() {
+    /**
+     * Called to perform the check.
+     * @param pdfTagging the PDF tagging tree, as defined by accessibility tags
+     */
+    void check(Document pdfTagging);
 
-            public IFCheck createCheck(Element element) {
-                return new IFTrueCheck(element);
-            }
-
-        });
-        registerCheckFactory("eval", new CheckFactory<IFCheck>() {
-
-            public IFCheck createCheck(Element element) {
-                return new IFEvalCheck(element);
-            }
-
-        });
-    }
 }

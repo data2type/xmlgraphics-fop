@@ -22,6 +22,8 @@ package org.apache.fop.layoutengine;
 import org.w3c.dom.Element;
 
 import org.apache.fop.check.ChecksFactory;
+import org.apache.fop.intermediate.IFEvalCheck;
+import org.apache.fop.intermediate.IFTrueCheck;
 
 /**
  * A factory class for creating {@link LayoutEngineCheck} instances.
@@ -32,14 +34,14 @@ public final class LayoutEngineChecksFactory extends ChecksFactory<LayoutEngineC
         registerCheckFactory("true", new CheckFactory<LayoutEngineCheck>() {
 
             public LayoutEngineCheck createCheck(Element element) {
-                return new TrueCheck(element);
+                return new IFTrueCheck(element);
             }
 
         });
         registerCheckFactory("eval", new CheckFactory<LayoutEngineCheck>() {
 
             public LayoutEngineCheck createCheck(Element element) {
-                return new EvalCheck(element);
+                return new IFEvalCheck(element);
             }
 
         });
