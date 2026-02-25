@@ -49,6 +49,19 @@ public class PDFProfile {
 
     private PDFDocument doc;
 
+    // strict mode flag
+    private boolean accessibilityStrict = false;
+
+    // strict mode getter
+    public boolean isAccessibilityStrict() {
+        return accessibilityStrict;
+    }
+
+    // strict mode setter
+    public void setAccessibilityStrict(boolean strict) {
+        this.accessibilityStrict = strict;
+    }
+
     /**
      * Main constructor
      * @param doc the PDF document
