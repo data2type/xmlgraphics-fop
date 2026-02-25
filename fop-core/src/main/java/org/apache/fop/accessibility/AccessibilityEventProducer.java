@@ -50,4 +50,20 @@ public interface AccessibilityEventProducer extends EventProducer {
      * @event.severity FATAL
      */
     void noStructureTreeInXML(Object source);
+
+    /**
+     * Warn that alternate text is missing (Lax mode).
+     * @param source the event source
+     * @param elementName the name of the element missing the alt text
+     * @event.severity WARN
+     */
+    void missingAlternateText(Object source, String elementName);
+
+    /**
+     * Error that alternate text is missing (Strict mode).
+     * @param source the event source
+     * @param elementName the name of the element missing the alt text
+     * @event.severity ERROR
+     */
+    void missingAlternateTextError(Object source, String elementName);
 }
