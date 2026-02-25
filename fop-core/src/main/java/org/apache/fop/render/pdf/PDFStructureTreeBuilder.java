@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 
+import org.apache.fop.accessibility.AccessibilityEventProducer;
+import org.apache.fop.pdf.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -116,7 +118,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
     private interface StructureElementBuilder {
 
         PDFStructElem build(StructureHierarchyMember parent, Attributes attributes, PDFFactory pdfFactory,
-                EventBroadcaster eventBroadcaster);
+                            EventBroadcaster eventBroadcaster);
 
     }
 
@@ -129,7 +131,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         public PDFStructElem build(StructureHierarchyMember parent, Attributes attributes,
-                PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
+                                   PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
             String role = attributes.getValue(ROLE);
             StructureType structureType;
             if (role == null) {
@@ -150,7 +152,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         protected PDFStructElem createStructureElement(StructureHierarchyMember parent,
-                StructureType structureType) {
+                                                       StructureType structureType) {
             return new PDFStructElem(parent, structureType);
         }
 
@@ -158,12 +160,12 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         protected void addKidToParent(PDFStructElem kid, StructureHierarchyMember parent,
-                Attributes attributes) {
+                                      Attributes attributes) {
             parent.addKid(kid);
         }
 
         protected void registerStructureElement(PDFStructElem structureElement, PDFFactory pdfFactory,
-                Attributes attributes) {
+                                                Attributes attributes) {
             pdfFactory.getDocument().registerStructureElement(structureElement);
         }
 
@@ -177,7 +179,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected PDFStructElem createStructureElement(StructureHierarchyMember parent,
-                StructureType structureType) {
+                                                       StructureType structureType) {
             return new PageSequenceStructElem(parent, structureType);
         }
 
@@ -191,13 +193,13 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected void addKidToParent(PDFStructElem kid, StructureHierarchyMember parent,
-                Attributes attributes) {
+                                      Attributes attributes) {
             String flowName = attributes.getValue(Flow.FLOW_NAME);
             ((PageSequenceStructElem) parent).addContent(flowName, kid);
         }
 
         public PDFStructElem build(StructureHierarchyMember parent, Attributes attributes,
-                                         PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
+                                   PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
             if (pdfFactory.getDocument().isStaticRegionsPerPageForAccessibility()) {
                 PageSequenceStructElem pageSequenceStructElem = (PageSequenceStructElem) parent;
                 if (pageSequenceStructElem.sect == null) {
@@ -249,11 +251,43 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
+            // get alt-text node
             String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
-            if (altTextNode == null) {
-                altTextNode = "No alternate text specified";
+
+            // access pdf document
+            PDFDocument pdfDoc = structElem.getDocument();
+
+            // UAMode flag
+            boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
+
+            // check if alt-text node is missing
+            if (altTextNode == null || altTextNode.isEmpty()) {
+                // UAMode enabled
+                if (isPDFUA) {
+                    // check policy
+                    boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
+                    EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
+
+                    if (isStrict) {
+                        // --- STRICT: Error (Stops Build) ---
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateTextError(structElem, "Image (Figure)");
+                        }
+                    } else {
+                        // --- LAX: Warning Only (Build Continues) ---
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateText(structElem, "Image (Figure)");
+                        }
+
+                        // leave 'altTextNode' as null so nothing is added to the PDF.
+                    }
+                }
+            } else {
+                // alt-text exists, set it normally
+                structElem.put("Alt", altTextNode);
             }
-            structElem.put("Alt", altTextNode);
         }
 
     }
@@ -266,11 +300,43 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         @Override
         protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
             super.setAttributes(structElem, attributes);
+            // get alt-text node
             String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
-            if (altTextNode == null) {
-                altTextNode = "No alternate text specified";
+
+            // access pdf document
+            PDFDocument pdfDoc = structElem.getDocument();
+
+            // UAMode flag
+            boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
+
+            // check if alt-text node is missing
+            if (altTextNode == null || altTextNode.isEmpty()) {
+                // UAMode enabled
+                if (isPDFUA) {
+                    // check policy
+                    boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
+                    EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
+
+                    if (isStrict) {
+                        // --- STRICT: Error (Stops Build) ---
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateTextError(structElem, "Image (Figure)");
+                        }
+                    } else {
+                        // --- LAX: Warning Only (Build Continues) ---
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateText(structElem, "Image (Figure)");
+                        }
+
+                        // leave 'altTextNode' as null so nothing is added to the PDF.
+                    }
+                }
+            } else {
+                // alt-text exists, set it normally
+                structElem.put("Alt", altTextNode);
             }
-            structElem.put("Alt", altTextNode);
         }
     }
 
@@ -282,7 +348,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected PDFStructElem createStructureElement(StructureHierarchyMember parent,
-                StructureType structureType) {
+                                                       StructureType structureType) {
             return new TableStructElem(parent, structureType);
         }
     }
@@ -295,7 +361,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected void addKidToParent(PDFStructElem kid, StructureHierarchyMember parent,
-                Attributes attributes) {
+                                      Attributes attributes) {
             ((TableStructElem) parent).addTableFooter(kid);
         }
     }
@@ -308,7 +374,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected void registerStructureElement(PDFStructElem structureElement, PDFFactory pdfFactory,
-                Attributes attributes) {
+                                                Attributes attributes) {
             if (structureElement.getStructureType() == Table.TH) {
                 String scopeAttribute = attributes.getValue(InternalElementMapping.URI,
                         InternalElementMapping.SCOPE);
@@ -338,7 +404,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
     private static class PlaceholderBuilder implements StructureElementBuilder {
 
         public PDFStructElem build(StructureHierarchyMember parent, Attributes attributes,
-                PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
+                                   PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
             PDFStructElem elem = new PDFStructElem.Placeholder(parent);
             parent.addKid(elem);
             return elem;
@@ -375,14 +441,14 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
     }
 
     public static PDFStructElem createStructureElement(String name, StructureHierarchyMember parent,
-                Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
-            StructureElementBuilder builder = BUILDERS.get(name);
-            if (builder == null) {
-                // TODO is a fallback really necessary?
-                builder = DEFAULT_BUILDER;
-            }
-            return builder.build(parent, attributes, pdfFactory, eventBroadcaster);
+                                                       Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
+        StructureElementBuilder builder = BUILDERS.get(name);
+        if (builder == null) {
+            // TODO is a fallback really necessary?
+            builder = DEFAULT_BUILDER;
         }
+        return builder.build(parent, attributes, pdfFactory, eventBroadcaster);
+    }
 
     public void startPageSequence(Locale language, String role) {
         ancestors = new LinkedList<>();
