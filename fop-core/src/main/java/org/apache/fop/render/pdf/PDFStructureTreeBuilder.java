@@ -303,6 +303,8 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
             // get alt-text node
             String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
 
+            PDFName elemName = structElem.getStructureType().getName();
+
             // access pdf document
             PDFDocument pdfDoc = structElem.getDocument();
 
@@ -321,21 +323,26 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                         // --- STRICT: Error (Stops Build) ---
                         if (broadcaster != null) {
                             AccessibilityEventProducer.Provider.get(broadcaster)
-                                    .missingAlternateTextError(structElem, "Image (Figure)");
+                                    .missingAlternateTextError(structElem, "Link");
                         }
                     } else {
                         // --- LAX: Warning Only (Build Continues) ---
                         if (broadcaster != null) {
                             AccessibilityEventProducer.Provider.get(broadcaster)
-                                    .missingAlternateText(structElem, "Image (Figure)");
+                                    .missingAlternateTextError(structElem, "Link");
                         }
 
                         // leave 'altTextNode' as null so nothing is added to the PDF.
                     }
                 }
             } else {
-                // alt-text exists, set it normally
-                structElem.put("Alt", altTextNode);
+                // check if the node is really a link
+                boolean isLink = StandardStructureTypes.InlineLevelStructure.LINK.getName().equals(elemName);
+
+                if (!isLink) {
+                    // add alt to the tag if it is NOT a link
+                    structElem.put("Alt", altTextNode);
+                }
             }
         }
     }
