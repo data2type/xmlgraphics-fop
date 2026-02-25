@@ -38,6 +38,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.fop.events.EventBroadcaster;
 import org.apache.xmlgraphics.image.loader.util.SoftMapCache;
 
 import org.apache.fop.pdf.StandardStructureAttributes.Table.Scope;
@@ -121,6 +122,19 @@ public class PDFDocument {
     /** the colorspace (0=RGB, 1=CMYK) */
     private PDFDeviceColorSpace colorspace
         = new PDFDeviceColorSpace(PDFDeviceColorSpace.DEVICE_RGB);
+
+    // broadcaster field
+    private EventBroadcaster eventBroadcaster;
+
+    // broadcaster getter
+    public void setEventBroadcaster(EventBroadcaster broadcaster) {
+        this.eventBroadcaster = broadcaster;
+    }
+
+    // broadcaster setter
+    public EventBroadcaster getEventBroadcaster() {
+        return this.eventBroadcaster;
+    }
 
     /** the counter for Pattern name numbering (e.g. 'Pattern1') */
     private int patternCount;
