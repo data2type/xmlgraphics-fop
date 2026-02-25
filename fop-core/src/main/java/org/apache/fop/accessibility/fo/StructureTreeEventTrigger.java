@@ -384,7 +384,31 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     @Override
     public void startLink(BasicLink basicLink) {
-        startElement(basicLink);
+
+        // attributes object
+        AttributesImpl attributes = new AttributesImpl();
+
+        // alt-text attribute
+        String altText = basicLink.getAltText();
+        if (altText != null) {
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
+                    ExtensionElementMapping.STANDARD_PREFIX, altText);
+        }
+
+        // role and destination attributes
+        addRole(basicLink, attributes);
+        String dest = basicLink.getExternalDestination();
+        if (dest != null) {
+            addNoNamespaceAttribute(attributes, "external-destination", dest);
+        } else {
+            dest = basicLink.getInternalDestination();
+            if (dest != null) {
+                addNoNamespaceAttribute(attributes, "internal-destination", dest);
+            }
+        }
+
+        // pass attributes
+        startElement(basicLink, attributes);
     }
 
     @Override
@@ -394,13 +418,46 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     @Override
     public void image(ExternalGraphic eg) {
-        startElement(eg);
+        // create attributes
+        AttributesImpl attributes = new AttributesImpl();
+
+        // alt-text attribute
+        String altText = eg.getAltText();
+        if (altText != null) {
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
+                    ExtensionElementMapping.STANDARD_PREFIX, altText);
+        }
+
+        // role and src attribute
+        addRole(eg, attributes);
+        String src = eg.getSrc();
+        if (src != null) {
+            addNoNamespaceAttribute(attributes, "src", src);
+        }
+
+        // pass attributes
+        startElement(eg, attributes);
+
         endElement(eg);
     }
 
     @Override
     public void startInstreamForeignObject(InstreamForeignObject ifo) {
-        startElement(ifo);
+        // attributes object
+        AttributesImpl attributes = new AttributesImpl();
+
+        // alt-text attribute
+        String altText = ifo.getAltText();
+        if (altText != null) {
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
+                    ExtensionElementMapping.STANDARD_PREFIX, altText);
+        }
+
+        // role attribute
+        addRole(ifo, attributes);
+
+        // pass attributes
+        startElement(ifo, attributes);
     }
 
     @Override
