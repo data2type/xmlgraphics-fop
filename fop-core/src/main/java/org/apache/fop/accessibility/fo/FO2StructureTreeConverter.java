@@ -186,6 +186,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     @Override
     public void startPageNumber(final PageNumber pagenum) {
+        handleStartArtifact(pagenum);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startPageNumber(pagenum);
@@ -201,11 +202,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endPageNumber(pagenum);
             }
         });
+        handleEndArtifact(pagenum);
         super.endPageNumber(pagenum);
     }
 
     @Override
     public void startPageNumberCitation(final PageNumberCitation pageCite) {
+        handleStartArtifact(pageCite);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startPageNumberCitation(pageCite);
@@ -221,11 +224,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endPageNumberCitation(pageCite);
             }
         });
+        handleEndArtifact(pageCite);
         super.endPageNumberCitation(pageCite);
     }
 
     @Override
     public void startPageNumberCitationLast(final PageNumberCitationLast pageLast) {
+        handleStartArtifact(pageLast);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startPageNumberCitationLast(pageLast);
@@ -241,6 +246,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endPageNumberCitationLast(pageLast);
             }
         });
+        handleEndArtifact(pageLast);
         super.endPageNumberCitationLast(pageLast);
     }
 
@@ -280,6 +286,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     @Override
     public void startBlock(final Block bl) {
+        handleStartArtifact(bl);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startBlock(bl);
@@ -295,6 +302,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endBlock(bl);
             }
         });
+        handleEndArtifact(bl);
         super.endBlock(bl);
     }
 
@@ -320,6 +328,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     @Override
     public void startInline(final Inline inl) {
+        handleStartArtifact(inl);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startInline(inl);
@@ -335,11 +344,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endInline(inl);
             }
         });
+        handleEndArtifact(inl);
         super.endInline(inl);
     }
 
     @Override
     public void startTable(final Table tbl) {
+        handleStartArtifact(tbl);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startTable(tbl);
@@ -355,6 +366,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endTable(tbl);
             }
         });
+        handleEndArtifact(tbl);
         super.endTable(tbl);
     }
 
@@ -424,6 +436,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     @Override
     public void startBody(final TableBody body) {
+        handleStartArtifact(body);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startBody(body);
@@ -439,11 +452,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endBody(body);
             }
         });
+        handleEndArtifact(body);
         super.endBody(body);
     }
 
     @Override
     public void startRow(final TableRow tr) {
+        handleStartArtifact(tr);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startRow(tr);
@@ -459,11 +474,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endRow(tr);
             }
         });
+        handleEndArtifact(tr);
         super.endRow(tr);
     }
 
     @Override
     public void startCell(final TableCell tc) {
+        handleStartArtifact(tc);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startCell(tc);
@@ -479,11 +496,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endCell(tc);
             }
         });
+        handleEndArtifact(tc);
         super.endCell(tc);
     }
 
     @Override
     public void startList(final ListBlock lb) {
+        handleStartArtifact(lb);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startList(lb);
@@ -499,11 +518,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endList(lb);
             }
         });
+        handleEndArtifact(lb);
         super.endList(lb);
     }
 
     @Override
     public void startListItem(final ListItem li) {
+        handleStartArtifact(li);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startListItem(li);
@@ -519,11 +540,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endListItem(li);
             }
         });
+        handleEndArtifact(li);
         super.endListItem(li);
     }
 
     @Override
     public void startListLabel(final ListItemLabel listItemLabel) {
+        handleStartArtifact(listItemLabel);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startListLabel(listItemLabel);
@@ -539,11 +562,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endListLabel(listItemLabel);
             }
         });
+        handleEndArtifact(listItemLabel);
         super.endListLabel(listItemLabel);
     }
 
     @Override
     public void startListBody(final ListItemBody listItemBody) {
+        handleStartArtifact(listItemBody);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startListBody(listItemBody);
@@ -559,6 +584,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endListBody(listItemBody);
             }
         });
+        handleEndArtifact(listItemBody);
         super.endListBody(listItemBody);
     }
 
@@ -584,6 +610,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     @Override
     public void startLink(final BasicLink basicLink) {
+        handleStartArtifact(basicLink);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startLink(basicLink);
@@ -599,6 +626,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endLink(basicLink);
             }
         });
+        handleEndArtifact(basicLink);
         super.endLink(basicLink);
     }
 
@@ -648,6 +676,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
 
     @Override
     public void startFootnote(final Footnote footnote) {
+        handleStartArtifact(footnote);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startFootnote(footnote);
@@ -663,11 +692,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endFootnote(footnote);
             }
         });
+        handleEndArtifact(footnote);
         super.endFootnote(footnote);
     }
 
     @Override
     public void startFootnoteBody(final FootnoteBody body) {
+        handleStartArtifact(body);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startFootnoteBody(body);
@@ -683,13 +714,13 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endFootnoteBody(body);
             }
         });
+        handleEndArtifact(body);
         super.endFootnoteBody(body);
     }
 
     @Override
     public void startLeader(final Leader l) {
-        converters.push(converter);
-        converter = eventSwallower;
+        handleStartArtifact(l);
         startContent(new Event(this) {
             public void run() {
                 eventHandler.startLeader(l);
@@ -705,7 +736,7 @@ public class FO2StructureTreeConverter extends DelegatingFOEventHandler {
                 eventHandler.endLeader(l);
             }
         });
-        converter = converters.pop();
+        handleEndArtifact(l);
         super.endLeader(l);
     }
 

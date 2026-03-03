@@ -1,0 +1,186 @@
+<testcase>
+    <info>
+        <p>
+            Check pdf structure for basic tags and table
+        </p>
+    </info>
+    <cfg>
+        <fop version="1.0">
+            <accessibility>true</accessibility>
+        </fop>
+    </cfg>
+    <fo>
+        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions"
+                 xml:lang="en">
+
+            <fo:layout-master-set>
+                <fo:simple-page-master master-name="page" page-height="29.7cm" page-width="21cm" margin="2cm">
+                    <fo:region-body/>
+                </fo:simple-page-master>
+            </fo:layout-master-set>
+
+            <fo:page-sequence master-reference="page">
+
+                <fo:flow flow-name="xsl-region-body">
+
+                    <!-- 1. block -->
+                    <fo:block>
+                        <fo:block role="artifact">fo:block</fo:block>
+                    </fo:block>
+                    <!-- 2. inline-->
+                    <fo:block>
+                        <fo:inline role="artifact">fo:inline</fo:inline>
+                    </fo:block>
+
+                    <!-- 3. link -->
+                    <fo:block>
+                        <fo:basic-link role="artifact" external-destination="https://example.com">
+                            <fo:block>fo:basic-link</fo:block>
+                        </fo:basic-link>
+                    </fo:block>
+
+                    <!-- 4. graphics -->
+                    <fo:block>
+                        <fo:external-graphic role="artifact"
+                                             src="url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)"
+                                             fox:alt-text="A test image used for accessibility."/>
+                    </fo:block>
+                    <!-- 5. instream-foreign-object -->
+                    <fo:block>
+                        <fo:instream-foreign-object role="artifact">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+                                <circle cx="5" cy="5" r="4"/>
+                            </svg>
+                        </fo:instream-foreign-object>
+                    </fo:block>
+
+                    <!-- 6. list -->
+                    <fo:block>
+                        <fo:block>
+                            <fo:list-block role="artifact" provisional-distance-between-starts="inherit"
+                                           provisional-label-separation="inherit">
+                                <fo:list-item>
+                                    <fo:list-item-label end-indent="label-end()">
+                                        <fo:block>•</fo:block>
+                                    </fo:list-item-label>
+                                    <fo:list-item-body start-indent="body-start()">
+                                        <fo:block>fo:list-item</fo:block>
+                                    </fo:list-item-body>
+                                </fo:list-item>
+                            </fo:list-block>
+                        </fo:block>
+                        <fo:block>
+                            <fo:list-block>
+                                <fo:list-item role="artifact">
+                                    <fo:list-item-label end-indent="label-end()">
+                                        <fo:block>Label</fo:block>
+                                    </fo:list-item-label>
+                                    <fo:list-item-body start-indent="body-start()">
+                                        <fo:block>Body</fo:block>
+                                    </fo:list-item-body>
+                                </fo:list-item>
+                            </fo:list-block>
+                        </fo:block>
+                        <fo:block>
+                            <fo:list-block>
+                                <fo:list-item>
+                                    <fo:list-item-label end-indent="label-end()" role="artifact">
+                                        <fo:block>Label</fo:block>
+                                    </fo:list-item-label>
+                                    <fo:list-item-body start-indent="body-start()" role="artifact">
+                                        <fo:block>Body</fo:block>
+                                    </fo:list-item-body>
+                                </fo:list-item>
+                            </fo:list-block>
+                        </fo:block>
+                    </fo:block>
+
+                    <!-- 7. table -->
+                    <fo:block>
+                        <fo:block>
+                            <fo:table role="artifact" border="0.5pt solid black">
+                                <fo:table-body>
+                                    <fo:table-row>
+                                        <fo:table-cell>
+                                            <fo:block>fo:table-cell</fo:block>
+                                        </fo:table-cell>
+                                    </fo:table-row>
+                                </fo:table-body>
+                            </fo:table>
+                        </fo:block>
+
+                        <fo:block>
+                            <fo:table border="0.5pt solid black">
+                                <fo:table-body role="artifact">
+                                    <fo:table-row>
+                                        <fo:table-cell>
+                                            <fo:block>fo:table-cell</fo:block>
+                                        </fo:table-cell>
+                                    </fo:table-row>
+                                </fo:table-body>
+                            </fo:table>
+                        </fo:block>
+
+                        <fo:block>
+                            <fo:table border="0.5pt solid black">
+                                <fo:table-body>
+                                    <fo:table-row role="artifact">
+                                        <fo:table-cell>
+                                            <fo:block>Cell</fo:block>
+                                        </fo:table-cell>
+                                    </fo:table-row>
+                                </fo:table-body>
+                            </fo:table>
+                        </fo:block>
+
+                        <fo:block>
+                            <fo:table border="0.5pt solid black">
+                                <fo:table-body>
+                                    <fo:table-row>
+                                        <fo:table-cell role="artifact">
+                                            <fo:block>Cell</fo:block>
+                                        </fo:table-cell>
+                                    </fo:table-row>
+                                </fo:table-body>
+                            </fo:table>
+                        </fo:block>
+                    </fo:block>
+
+                    <!-- 8. footnote -->
+                    <fo:block>
+                        <fo:footnote role="artifact">
+                            <fo:inline>1</fo:inline>
+                            <fo:footnote-body>
+                                <fo:block>fo:footnote-body</fo:block>
+                            </fo:footnote-body>
+                        </fo:footnote>
+                    </fo:block>
+
+                    <!-- 9. page number -->
+                    <fo:block>
+                        <fo:page-number role="artifact"/>
+                    </fo:block>
+
+                    <!-- 10. page number citation -->
+                    <fo:block>
+                        <fo:page-number-citation ref-id="target" role="artifact"/>
+                    </fo:block>
+                </fo:flow>
+            </fo:page-sequence>
+        </fo:root>
+
+    </fo>
+    <pdf-tagging-checks>
+        <eval expected="" xpath="//P[1]"/>
+        <true xpath="not(//P[2]/content)"/>
+        <true xpath="not(//P[3]/content)"/>
+        <true xpath="not(//P[4]/content)"/>
+        <true xpath="not(//P[5]/content)"/>
+        <eval expected="0" xpath="count(//P[6]//content)"/>
+        <eval expected="0" xpath="count(//P[7]//content)"/>
+        <eval expected="2" xpath="count(//P[7]//Table)"/>
+        <true xpath="not(//P[8]/content)"/>
+        <true xpath="not(//P[9]/content)"/>
+        <true xpath="not(//P[10]/content)"/>
+    </pdf-tagging-checks>
+</testcase>
