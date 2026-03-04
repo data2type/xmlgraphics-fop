@@ -171,16 +171,16 @@
 
     </fo>
     <pdf-tagging-checks>
-        <eval expected="" xpath="//P[1]"/>
-        <true xpath="not(//P[2]/content)"/>
-        <true xpath="not(//P[3]/content)"/>
-        <true xpath="not(//P[4]/content)"/>
-        <true xpath="not(//P[5]/content)"/>
-        <eval expected="0" xpath="count(//P[6]//content)"/>
-        <eval expected="0" xpath="count(//P[7]//content)"/>
-        <eval expected="2" xpath="count(//P[7]//Table)"/>
-        <true xpath="not(//P[8]/content)"/>
-        <true xpath="not(//P[9]/content)"/>
-        <true xpath="not(//P[10]/content)"/>
+        <eval expected="" xpath="//Sect/P[1]"/>
+        <true xpath="not(//Sect/P[2]/*)"/>
+        <true xpath="not(//Sect/P[3]/*)"/>
+        <true xpath="not(//Sect/P[4]/*)"/>
+        <true xpath="not(//Sect/P[5]/*)"/>
+        <eval expected="0" xpath="count(//Sect/P[6]//content)"/>
+        <eval expected="0" xpath="count(//Sect/P[7]//content)"/>
+        <eval expected="2" xpath="count(//Sect/P[7]//Table)"/>
+        <true xpath="not(//Sect/P[8]/*)"/>
+        <true xpath="not(//Sect/P[9]/*)"/>
+        <true xpath="not(//Sect/P[10]/*)"/>
     </pdf-tagging-checks>
 </testcase>
