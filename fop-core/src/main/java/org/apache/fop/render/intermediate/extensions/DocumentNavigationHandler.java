@@ -126,6 +126,9 @@ public class DocumentNavigationHandler extends DefaultHandler
                 structureTreeElement = structureTreeElements.get(attributes.getValue(
                         InternalElementMapping.URI, InternalElementMapping.STRUCT_REF));
                 Link link = new Link(null, targetRect);
+                if(structureTreeElement != null) {
+                    link.setStructureTreeElement(structureTreeElement);
+                }
                 objectStack.push(link);
             } else if (GOTO_XY.getLocalName().equals(localName)) {
                 String idref = attributes.getValue("idref");
@@ -157,9 +160,6 @@ public class DocumentNavigationHandler extends DefaultHandler
                     action = new GoToXYAction(id, pageIndex, location,
                             new PageIndexRelative(pageIndex, pageIndexRelative));
                 }
-                if (structureTreeElement != null) {
-                    action.setStructureTreeElement(structureTreeElement);
-                }
                 objectStack.push(action);
             } else if (GOTO_URI.getLocalName().equals(localName)) {
                 String id = attributes.getValue("id");
@@ -170,9 +170,6 @@ public class DocumentNavigationHandler extends DefaultHandler
                 URIAction action = new URIAction(gotoURI, newWindow, altText);
                 if (id != null) {
                     action.setID(id);
-                }
-                if (structureTreeElement != null) {
-                    action.setStructureTreeElement(structureTreeElement);
                 }
                 objectStack.push(action);
             } else {

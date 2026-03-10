@@ -81,9 +81,6 @@ public class URIAction extends AbstractAction implements DocumentNavigationExten
         if (isNewWindow() != otherAction.isNewWindow()) {
             return false;
         }
-        if (getStructureTreeElement() != null) {
-            return getStructureTreeElement().equals(other.getStructureTreeElement());
-        }
         return true;
     }
 

@@ -975,8 +975,8 @@ public class IFRenderer extends AbstractPathOrientedRenderer {
         if (linkTraitFound) {
             StructureTreeElement structElem
                     = (StructureTreeElement) ip.getTrait(Trait.STRUCTURE_TREE_ELEMENT);
-            action.setStructureTreeElement(structElem);
             Link link = new Link(action, ipRect);
+            link.setStructureTreeElement(structElem);
             this.deferredLinks.add(link);
         } else if (ip instanceof BasicLinkArea) {
             BasicLinkArea linkArea = (BasicLinkArea) ip;
