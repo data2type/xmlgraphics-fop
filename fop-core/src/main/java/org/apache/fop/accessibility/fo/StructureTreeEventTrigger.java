@@ -388,6 +388,8 @@ class StructureTreeEventTrigger extends FOEventHandler {
         // attributes object
         AttributesImpl attributes = new AttributesImpl();
 
+        String localName = basicLink.getLocalName();
+
         // alt-text attribute
         String altText = basicLink.getAltText();
         if (altText != null) {
@@ -408,7 +410,9 @@ class StructureTreeEventTrigger extends FOEventHandler {
         }
 
         // pass attributes
-        startElement(basicLink, attributes);
+        basicLink.setStructureTreeElement(
+                structureTreeEventHandler.startImageNode(localName, attributes,
+                        basicLink.getParent().getStructureTreeElement()));
     }
 
     @Override
@@ -420,6 +424,8 @@ class StructureTreeEventTrigger extends FOEventHandler {
     public void image(ExternalGraphic eg) {
         // create attributes
         AttributesImpl attributes = new AttributesImpl();
+
+        String localName = eg.getLocalName();
 
         // alt-text attribute
         String altText = eg.getAltText();
@@ -436,7 +442,9 @@ class StructureTreeEventTrigger extends FOEventHandler {
         }
 
         // pass attributes
-        startElement(eg, attributes);
+        eg.setStructureTreeElement(
+                structureTreeEventHandler.startImageNode(localName, attributes,
+                        eg.getParent().getStructureTreeElement()));
 
         endElement(eg);
     }
@@ -445,6 +453,8 @@ class StructureTreeEventTrigger extends FOEventHandler {
     public void startInstreamForeignObject(InstreamForeignObject ifo) {
         // attributes object
         AttributesImpl attributes = new AttributesImpl();
+
+        String localName = ifo.getLocalName();
 
         // alt-text attribute
         String altText = ifo.getAltText();
@@ -457,7 +467,9 @@ class StructureTreeEventTrigger extends FOEventHandler {
         addRole(ifo, attributes);
 
         // pass attributes
-        startElement(ifo, attributes);
+        ifo.setStructureTreeElement(
+                structureTreeEventHandler.startImageNode(localName, attributes,
+                        ifo.getParent().getStructureTreeElement()));
     }
 
     @Override
