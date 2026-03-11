@@ -157,6 +157,15 @@
     <xsl:copy-of select="."/>
   </xsl:template>
 
+  <xsl:template match="fo:basic-link/@internal-destination
+                    |fo:basic-link/@external-destination">
+    <xsl:copy-of select="."/>
+  </xsl:template>
+
+  <xsl:template match="fo:external-graphic/@src">
+    <xsl:copy-of select="."/>
+  </xsl:template>
+
   <xsl:template match="fo:block/@language[. != ../ancestor::*[@language][1]/@language]
                   |fo:character/@language[. != ../ancestor::*[@language][1]/@language]">
     <xsl:attribute name="xml:lang">
