@@ -20,6 +20,7 @@
 package org.apache.fop.pdf;
 
 // Java
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -38,9 +39,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.fop.events.EventBroadcaster;
 import org.apache.xmlgraphics.image.loader.util.SoftMapCache;
 
+import org.apache.fop.events.EventBroadcaster;
 import org.apache.fop.pdf.StandardStructureAttributes.Table.Scope;
 import org.apache.fop.pdf.xref.CrossReferenceStream;
 import org.apache.fop.pdf.xref.CrossReferenceTable;

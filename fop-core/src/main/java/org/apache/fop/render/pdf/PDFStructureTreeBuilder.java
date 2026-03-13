@@ -25,18 +25,19 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 
-import org.apache.fop.accessibility.AccessibilityEventProducer;
-import org.apache.fop.pdf.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
 
+import org.apache.fop.accessibility.AccessibilityEventProducer;
 import org.apache.fop.accessibility.StructureTreeElement;
 import org.apache.fop.accessibility.StructureTreeEventHandler;
 import org.apache.fop.events.EventBroadcaster;
 import org.apache.fop.fo.extensions.ExtensionElementMapping;
 import org.apache.fop.fo.extensions.InternalElementMapping;
 import org.apache.fop.fo.pagination.Flow;
+import org.apache.fop.pdf.PDFDocument;
 import org.apache.fop.pdf.PDFFactory;
+import org.apache.fop.pdf.PDFName;
 import org.apache.fop.pdf.PDFParentTree;
 import org.apache.fop.pdf.PDFStructElem;
 import org.apache.fop.pdf.PDFStructTreeRoot;
@@ -318,21 +319,16 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                     // check policy
                     boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
                     EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
-
-                    if (isStrict) {
-                        // --- STRICT: Error (Stops Build) ---
-                        if (broadcaster != null) {
-                            AccessibilityEventProducer.Provider.get(broadcaster)
-                                    .missingAlternateTextError(structElem, "Link");
+                    if (broadcaster != null) {
+                        AccessibilityEventProducer aep = AccessibilityEventProducer.Provider.get(broadcaster);
+                        if (isStrict) {
+                            // --- STRICT: Error (Stops Build) ---
+                            aep.missingAlternateTextError(structElem, "Link");
+                        } else {
+                            // --- LAX: Warning Only (Build Continues) ---
+                            aep.missingAlternateText(structElem, "Link");
+                            // leave 'altTextNode' as null so nothing is added to the PDF.
                         }
-                    } else {
-                        // --- LAX: Warning Only (Build Continues) ---
-                        if (broadcaster != null) {
-                            AccessibilityEventProducer.Provider.get(broadcaster)
-                                    .missingAlternateTextError(structElem, "Link");
-                        }
-
-                        // leave 'altTextNode' as null so nothing is added to the PDF.
                     }
                 }
             }
@@ -441,8 +437,11 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                 new AttributesImpl(), pdfFactory, eventBroadcaster);
     }
 
-    public static PDFStructElem createStructureElement(String name, StructureHierarchyMember parent,
-                                                       Attributes attributes, PDFFactory pdfFactory, EventBroadcaster eventBroadcaster) {
+    public static PDFStructElem createStructureElement(String name,
+                                                       StructureHierarchyMember parent,
+                                                       Attributes attributes,
+                                                       PDFFactory pdfFactory,
+                                                       EventBroadcaster eventBroadcaster) {
         StructureElementBuilder builder = BUILDERS.get(name);
         if (builder == null) {
             // TODO is a fallback really necessary?

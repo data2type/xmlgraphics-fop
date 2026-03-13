@@ -50,7 +50,7 @@ public class PDFProfile {
     private PDFDocument doc;
 
     // strict mode flag
-    private boolean accessibilityStrict = false;
+    private boolean accessibilityStrict;
 
     // strict mode getter
     public boolean isAccessibilityStrict() {

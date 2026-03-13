@@ -33,7 +33,6 @@ import org.apache.fop.accessibility.StructureTreeEventHandler;
 import org.apache.fop.fo.FOEventHandler;
 import org.apache.fop.fo.FONode;
 import org.apache.fop.fo.FOText;
-import org.apache.fop.fo.FObj;
 import org.apache.fop.fo.extensions.ExtensionElementMapping;
 import org.apache.fop.fo.extensions.InternalElementMapping;
 import org.apache.fop.fo.flow.AbstractRetrieveMarker;

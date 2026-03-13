@@ -110,7 +110,9 @@ public class PDFPainter extends AbstractIFPainter<PDFDocumentHandler> {
         }
 
         private boolean containsLettersOrDigits(String text) {
-            if (text == null) { return false; }
+            if (text == null) {
+                return false;
+            }
             for (int i = 0; i < text.length(); i++) {
                 if (Character.isLetterOrDigit(text.charAt(i))) {
                     return true;
