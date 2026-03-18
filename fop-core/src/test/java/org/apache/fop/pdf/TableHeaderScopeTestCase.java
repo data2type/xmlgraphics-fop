@@ -112,6 +112,33 @@ public class TableHeaderScopeTestCase {
         verifyColspan(structElem, 2);
     }
 
+    @Test
+    public void testMultipleOwners() {
+        PDFStructElem structElem = new PDFStructElem();
+
+        Scope.addScopeAttribute(structElem, Scope.COLUMN);
+
+        PDFName layoutOwner = new PDFName("Layout");
+        structElem.setAttribute(layoutOwner, "TextAlign", new PDFName("Center"));
+
+        structElem.attachAttributes();
+
+
+        Assert.assertTrue(structElem.get("A") instanceof PDFArray);
+        PDFArray array = (PDFArray) structElem.get("A");
+        Assert.assertEquals(2, array.length());
+    }
+
+    @Test
+    public void testScopeOverwrite() {
+        PDFStructElem structElem = new PDFStructElem();
+        Scope.addScopeAttribute(structElem, Scope.ROW);
+        Scope.addScopeAttribute(structElem, Scope.COLUMN);
+        structElem.attachAttributes();
+
+        verifyScope(structElem, Scope.COLUMN);
+    }
+
     private void scopeAttributeMustBeAdded(Scope scope) {
         PDFStructElem structElem = new PDFStructElem();
         Scope.addScopeAttribute(structElem, scope);
