@@ -51,7 +51,7 @@ public class PDFStructElem extends StructureHierarchyMember implements Structure
      */
     protected List<PDFObject> kids;
 
-    private List<PDFDictionary> attributes;
+    private HashMap<PDFName, PDFDictionary> attributes;
     private PDFObject parent;
 
     /**
