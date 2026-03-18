@@ -31,6 +31,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.helpers.AttributesImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -71,12 +72,6 @@ public class PDFStructureTreeBuilderTestCase {
                 + "  /Pg 1 0 R\n"
                 + "  /MCID 0\n"
                 + ">>] >>");
-    }
-
-    @Before
-    public void setUp() {
-        PDFDocument doc = new PDFDocument("");
-        pdfFactory = new PDFFactory(doc);
     }
 
     @Test
