@@ -1,0 +1,42 @@
+<testcase>
+    <info>
+        <p>FOP-3167: Verify TH Scope is preserved when child elements have attributes.</p>
+    </info>
+    <cfg>
+        <fop version="1.0">
+            <accessibility>true</accessibility>
+        </fop>
+    </cfg>
+    <fo>
+        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:fox="http://xmlgraphics.apache.org/fop/extensions">
+            <fo:layout-master-set>
+                <fo:simple-page-master master-name="sample" page-height="5in" page-width="5in">
+                    <fo:region-body margin="10mm"/>
+                </fo:simple-page-master>
+            </fo:layout-master-set>
+            <fo:page-sequence master-reference="sample">
+                <fo:flow flow-name="xsl-region-body">
+                    <fo:table table-layout="fixed" width="100%">
+                        <fo:table-header>
+                            <fo:table-row>
+                                <fo:table-cell fox:scope="col" border="1pt solid black">
+                                    <fo:block>
+                                        <fo:inline font-weight="bold" font-style="italic">Header A</fo:inline>
+                                    </fo:block>
+                                </fo:table-cell>
+                            </fo:table-row>
+                        </fo:table-header>
+                        <fo:table-body>
+                            <fo:table-row>
+                                <fo:table-cell><fo:block>Data</fo:block></fo:table-cell>
+                            </fo:table-row>
+                        </fo:table-body>
+                    </fo:table>
+                </fo:flow>
+            </fo:page-sequence>
+        </fo:root>
+    </fo>
+    <pdf-tagging-checks>
+        <true xpath="//@*[local-name()='Scope' and (contains(., 'Column'))]"/>
+    </pdf-tagging-checks>
+</testcase>
