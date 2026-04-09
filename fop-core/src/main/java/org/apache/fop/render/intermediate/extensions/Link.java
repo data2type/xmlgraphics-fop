@@ -21,6 +21,7 @@ package org.apache.fop.render.intermediate.extensions;
 
 import java.awt.Rectangle;
 
+import org.apache.fop.accessibility.StructureTreeElement;
 /**
  * This class is a link element for use in the intermediate format.
  */
@@ -28,6 +29,7 @@ public class Link {
 
     private AbstractAction action;
     private Rectangle targetRect;
+    private StructureTreeElement structureTreeElement;
 
     /**
      * Creates a new named destination.
@@ -61,6 +63,23 @@ public class Link {
      */
     public void setAction(AbstractAction action) {
         this.action = action;
+    }
+
+
+    /**
+     * Sets the structure element corresponding to this link.
+     * @param structureTreeElement a reference to the structure element
+     */
+    public void setStructureTreeElement(StructureTreeElement structureTreeElement) {
+        this.structureTreeElement = structureTreeElement;
+    }
+
+    /**
+     * Returns the structure element corresponding to this action.
+     * @return the reference to the structure element
+     */
+    public StructureTreeElement getStructureTreeElement() {
+        return structureTreeElement;
     }
 
 }

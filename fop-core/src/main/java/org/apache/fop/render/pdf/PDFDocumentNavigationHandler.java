@@ -111,7 +111,7 @@ public class PDFDocumentNavigationHandler implements IFDocumentNavigationHandler
         PDFLink pdfLink = getPDFDoc().getFactory().makeLink(
                 targetRect2D, pdfAction);
         if (pdfLink != null) {
-            PDFStructElem structure = (PDFStructElem) link.getAction().getStructureTreeElement();
+            PDFStructElem structure = (PDFStructElem) link.getStructureTreeElement();
             if (documentHandler.getUserAgent().isAccessibilityEnabled() && structure != null) {
                 documentHandler.getLogicalStructureHandler().addLinkContentItem(pdfLink, structure);
             }

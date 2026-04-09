@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!-- $Id$ -->
+<testcase>
+    <info>
+        <p>
+            Check pdf structure for links
+        </p>
+    </info>
+    <cfg>
+        <fop version="1.0">
+            <accessibility>true</accessibility>
+        </fop>
+    </cfg>
+    <fo>
+        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+
+            <fo:layout-master-set>
+                <fo:simple-page-master master-name="page"
+                                       page-height="29.7cm"
+                                       page-width="21cm"
+                                       margin="2cm">
+                    <fo:region-body/>
+                </fo:simple-page-master>
+            </fo:layout-master-set>
+
+            <fo:page-sequence master-reference="page">
+                <fo:flow flow-name="xsl-region-body">
+
+                    <fo:block font-size="16pt" font-weight="bold" space-after="12pt">
+                        FO Link Annotation Test
+                    </fo:block>
+
+                    <!-- CASE 1 -->
+                    <fo:block font-weight="bold" space-before="10pt">Case 1: One link → one target</fo:block>
+
+                    <fo:block>
+                        <fo:basic-link internal-destination="targetA">
+                            Link to Target A
+                        </fo:basic-link>
+                    </fo:block>
+
+
+                    <!-- CASE 2 -->
+                    <fo:block font-weight="bold" space-before="10pt">
+                        Case 2: Multiple links → same target
+                    </fo:block>
+
+                    <fo:block>
+                        <fo:basic-link internal-destination="targetB">Link 1 → Target B</fo:basic-link>
+                    </fo:block>
+
+                    <fo:block>
+                        <fo:basic-link internal-destination="targetB">Link 2 → Target B</fo:basic-link>
+                    </fo:block>
+
+                    <fo:block>
+                        <fo:basic-link internal-destination="targetB">Link 3 → Target B</fo:basic-link>
+                    </fo:block>
+
+                    <!-- CASE 5 -->
+                    <fo:block font-weight="bold" space-before="10pt">
+                        Case 5: External links (same URL)
+                    </fo:block>
+
+                    <fo:block>
+                        <fo:basic-link external-destination="url('https://example.com')">
+                            External Link 1
+                        </fo:basic-link>
+                    </fo:block>
+
+                    <fo:block>
+                        <fo:basic-link external-destination="url('https://example.com')">
+                            External Link 2
+                        </fo:basic-link>
+                    </fo:block>
+
+
+                    <!-- TARGETS -->
+
+                    <fo:block break-before="page"/>
+
+                    <fo:block id="targetA" font-size="14pt" font-weight="bold" space-before="20pt">
+                        Target A
+                    </fo:block>
+
+                    <fo:block>
+                        Destination for Target A.
+                    </fo:block>
+
+                    <fo:block id="targetB" font-size="14pt" font-weight="bold" space-before="20pt">
+                        Target B
+                    </fo:block>
+
+                    <fo:block>
+                        Destination for Target B.
+                    </fo:block>
+
+                </fo:flow>
+            </fo:page-sequence>
+
+        </fo:root>
+    </fo>
+    <pdf-tagging-checks>
+        <true xpath="//Link/AnnotationRef"/>
+        <eval expected="https://example.com" xpath="//Link[./content = 'External Link 1']/AnnotationRef/@uri"/>
+        <eval expected="https://example.com" xpath="//Link[./content = 'External Link 2']/AnnotationRef/@uri"/>
+    </pdf-tagging-checks>
+</testcase>
