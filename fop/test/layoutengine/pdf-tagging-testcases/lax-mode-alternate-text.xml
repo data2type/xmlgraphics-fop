@@ -1,0 +1,45 @@
+<testcase>
+    <info>
+        <p>Check Lax Mode: dummy text should be generated if fox:alt-text is missing.</p>
+    </info>
+    <cfg>
+        <fop version="1.0">
+            <accessibility>true</accessibility>
+            <renderers>
+                <renderer mime="application/pdf">
+                    <pdf-ua-mode>PDF/UA-1</pdf-ua-mode>
+                    <accessibility-strict>false</accessibility-strict>
+                </renderer>
+            </renderers>
+        </fop>
+    </cfg>
+    <fo>
+        <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+            <fo:layout-master-set>
+                <fo:simple-page-master master-name="A4">
+                    <fo:region-body/>
+                </fo:simple-page-master>
+            </fo:layout-master-set>
+            <fo:declarations>
+                <x:xmpmeta xmlns:x="adobe:ns:meta/">
+                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                        <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:pdfuaid="http://www.aiim.org/pdfua/ns/id/">
+                            <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Test</rdf:li></rdf:Alt></dc:title>
+                            <pdfuaid:part>1</pdfuaid:part>
+                        </rdf:Description>
+                    </rdf:RDF>
+                </x:xmpmeta>
+            </fo:declarations>
+            <fo:page-sequence master-reference="A4">
+                <fo:flow flow-name="xsl-region-body">
+                    <fo:block>
+                        <fo:external-graphic src="url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)"/>
+                    </fo:block>
+                </fo:flow>
+            </fo:page-sequence>
+        </fo:root>
+    </fo>
+    <pdf-tagging-checks>
+        <eval expected="No alternate text specified" xpath="//P/Figure/@alternateDescription"/>
+    </pdf-tagging-checks>
+</testcase>
