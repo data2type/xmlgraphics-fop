@@ -137,6 +137,8 @@ public class FOUserAgent {
     private final ImageSessionContext imageSessionContext;
     private final SoftMapCache pdfObjectCache = new SoftMapCache(true);
 
+    private boolean accessibilityStrict = false; // default lax mode
+
     /**
      * Main constructor. <b>This constructor should not be called directly. Please use the
      * methods from FopFactory to construct FOUserAgent instances!</b>
@@ -873,4 +875,13 @@ public class FOUserAgent {
     public boolean isLegacyFoWrapper() {
         return factory.isLegacyFoWrapper();
     }
+
+    public void setAccessibilityStrict(boolean accessibilityStrict) {
+        this.accessibilityStrict = accessibilityStrict;
+    }
+
+    public boolean isAccessibilityStrict() {
+        return this.accessibilityStrict;
+    }
+
 }

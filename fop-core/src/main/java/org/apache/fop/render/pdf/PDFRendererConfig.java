@@ -127,6 +127,10 @@ public final class PDFRendererConfig implements RendererConfig {
                 pdfConfig = new PDFRendererConfig(new DefaultFontConfigParser().parse(cfg, strict),
                         new PDFRendererOptionsConfig(configOptions, encryptionConfig));
             } else {
+                Object strictObj = configOptions.get(PDFRendererOption.ACCESSIBILITY_STRICT);
+                if (strictObj instanceof Boolean) {
+                    userAgent.setAccessibilityStrict((Boolean) strictObj);
+                }
                 pdfConfig = new PDFRendererConfig(new DefaultFontConfigParser().parse(cfg, strict,
                         new FontEventAdapter(userAgent.getEventBroadcaster())),
                         new PDFRendererOptionsConfig(configOptions, encryptionConfig));

@@ -431,4 +431,14 @@ public interface FOValidationEventProducer extends EventProducer {
      * @event.severity WARN
      */
     void altTextMissing(Object source, String foElement, Locator loc);
+
+    /**
+     * Error in PDF/UA strict mode: Alternate text is missing for a graphic element.
+     *
+     * @param source the event source
+     * @param foElement name of the element (external-graphic or instream-foreign-object)
+     * @param loc the location of the error or null
+     * @event.severity FATAL
+     */
+    void altTextMissingError(Object source, String foElement, Locator loc) throws ValidationException;
 }

@@ -43,4 +43,5 @@
   <message key="emptyDocument">Document is empty (something might be wrong with your XSLT stylesheet).</message>
   <message key="unknownFormattingObject">Unknown formatting object "{offendingNode}" encountered (a child of {elementName}}.{{locator}}</message>
   <message key="altTextMissing">Alternate text is missing on {foElement}.{{locator}}</message>
+  <message key="altTextMissingError">Strict Accessibility Error: Alternate text is missing for "{foElement}". For PDF/UA, every figure or link must have a fox:alt-text description.</message>
 </catalogue>

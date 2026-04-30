@@ -114,8 +114,12 @@ public abstract class AbstractGraphics extends FObj
         width = pList.get(PR_WIDTH).getLength();
         if (getUserAgent().isAccessibilityEnabled()) {
             altText = pList.get(PR_X_ALT_TEXT).getString();
-            if (altText.equals("")) {
-                getFOValidationEventProducer().altTextMissing(this, getLocalName(), getLocator());
+            if (altText == null || altText.trim().isEmpty()) {
+                if (getUserAgent().isAccessibilityStrict()) {
+                    getFOValidationEventProducer().altTextMissingError(this, getName(), getLocator());
+                } else {
+                    getFOValidationEventProducer().altTextMissing(this, getName(), getLocator());
+                }
             }
         }
     }
