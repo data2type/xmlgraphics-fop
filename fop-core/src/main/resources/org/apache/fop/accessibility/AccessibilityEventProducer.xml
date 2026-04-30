@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <catalogue xml:lang="en">
   <message key="noStructureTreeInXML">Accessibility is enabled but structure tree is missing in XML file. Please disable accessibility, or re-generate XML file in accessibility mode.</message>
+  <message key="missingAlternateText">Alternate text is missing for "{elementName}". A dummy text will be used for PDF/UA compliance.</message>
+  <message key="missingAlternateTextError">Strict Accessibility Error: Alternate text is missing for "{elementName}".</message>
 </catalogue>
