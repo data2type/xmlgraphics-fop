@@ -27,6 +27,7 @@
     <xsl:apply-templates select="if-checks"/>
     <xsl:apply-templates select="event-checks"/>
     <xsl:apply-templates select="pdf-tagging-checks"/>
+    <xsl:apply-templates select="expected-error"/>
   </checks>
 </xsl:template>
 
@@ -53,6 +54,12 @@
   <event-checks>
     <xsl:copy-of select="*"/>
   </event-checks>
+</xsl:template>
+
+<xsl:template match="expected-error">
+    <expected-error>
+        <xsl:copy-of select="*|text()"/>
+    </expected-error>
 </xsl:template>
 
 <xsl:template match="text()" />

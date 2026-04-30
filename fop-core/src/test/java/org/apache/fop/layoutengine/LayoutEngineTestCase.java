@@ -291,6 +291,27 @@ public class LayoutEngineTestCase {
             Element eventChecks = (Element) nodes.item(0);
             doEventChecks(eventChecks, eventsChecker);
         }
+
+        nodes = testRoot.getElementsByTagName("expected-error");
+        if (nodes.getLength() > 0) {
+            String expectedError = nodes.item(0).getTextContent();
+            try {
+                generatePdf(testFile);
+                fail("Expected error did not occur: " + expectedError);
+            } catch (Exception e) {
+                Throwable cause = e;
+                boolean found = false;
+                while (cause != null) {
+                    if (cause.getMessage() != null && cause.getMessage().contains(expectedError)) {
+                        found = true;
+                        break;
+                    }
+                    cause = cause.getCause();
+                }
+                assertTrue("Expected error '" + expectedError + "' not found in exception chain. "
+                        + "Actual: " + e.getMessage(), found);
+            }
+        }
         eventsChecker.emitUncheckedEvents();
     }
 
