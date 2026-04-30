@@ -188,7 +188,8 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                             AccessibilityEventProducer.Provider.get(broadcaster)
                                     .missingAlternateText(structElem, elemName);
                         }
-                        // leave 'altTextNode' as null so nothing is added to the PDF.
+                        altTextNode = "No alternate text specified";
+                        structElem.put("Alt", altTextNode);
                     }
                 }
             } else {
@@ -327,7 +328,8 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                         } else {
                             // --- LAX: Warning Only (Build Continues) ---
                             aep.missingAlternateText(structElem, "Link");
-                            // leave 'altTextNode' as null so nothing is added to the PDF.
+                            altTextNode = "No alternate text specified";
+                            structElem.put("Alt", altTextNode);
                         }
                     }
                 }
