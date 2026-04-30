@@ -169,6 +169,7 @@ class PDFRenderingUtil {
         userAgent.setPdfUAEnabled(pdfDoc.getProfile().getPDFUAMode().isEnabled());
         pdfDoc.getProfile().setPDFXMode(rendererConfig.getPDFXMode());
         pdfDoc.getProfile().setPDFVTMode(rendererConfig.getPDFVTMode());
+        pdfDoc.getProfile().setAccessibilityStrict(rendererConfig.getAccessibilityStrict());
     }
 
     private void addsRGBColorSpace() throws IOException {

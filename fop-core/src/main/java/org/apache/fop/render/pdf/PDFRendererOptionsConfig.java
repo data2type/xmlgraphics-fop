@@ -32,6 +32,7 @@ import org.apache.fop.pdf.PDFVTMode;
 import org.apache.fop.pdf.PDFXMode;
 import org.apache.fop.pdf.Version;
 
+import static org.apache.fop.render.pdf.PDFRendererOption.ACCESSIBILITY_STRICT;
 import static org.apache.fop.render.pdf.PDFRendererOption.DISABLE_SRGB_COLORSPACE;
 import static org.apache.fop.render.pdf.PDFRendererOption.FILTER_LIST;
 import static org.apache.fop.render.pdf.PDFRendererOption.FORM_XOBJECT;
@@ -161,5 +162,10 @@ public final class PDFRendererOptionsConfig {
 
     public Boolean getObjectStreamsEnabled() {
         return (Boolean)properties.get(OBJECT_STREAMS);
+    }
+
+    public Boolean getAccessibilityStrict() {
+        Object val = properties.get(PDFRendererOption.ACCESSIBILITY_STRICT);
+        return val != null ? (Boolean) val : (Boolean) PDFRendererOption.ACCESSIBILITY_STRICT.getDefaultValue();
     }
 }

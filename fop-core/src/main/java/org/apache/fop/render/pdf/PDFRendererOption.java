@@ -127,6 +127,12 @@ public enum PDFRendererOption implements RendererConfigOption {
         Object deserialize(String value) {
             throw new UnsupportedOperationException();
         }
+    },
+    ACCESSIBILITY_STRICT("accessibility-strict", false) {
+        @Override
+        Boolean deserialize(String value) {
+            return Boolean.valueOf(value);
+        }
     };
 
     private final String name;
