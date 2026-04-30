@@ -45,6 +45,8 @@ import org.apache.xmlgraphics.xmp.schemas.XMPBasicAdapter;
 import org.apache.xmlgraphics.xmp.schemas.XMPBasicSchema;
 
 import org.apache.fop.accessibility.Accessibility;
+import org.apache.fop.accessibility.AccessibilityMissAlternateTextErrorEventListener;
+import org.apache.fop.accessibility.AccessibilityMissAlternateTextEventListener;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.io.InternalResourceResolver;
 import org.apache.fop.fo.extensions.ExtensionAttachment;
@@ -127,6 +129,8 @@ class PDFRenderingUtil {
 
     PDFRenderingUtil(FOUserAgent userAgent) {
         this.userAgent = userAgent;
+        this.userAgent.getEventBroadcaster().addEventListener(new AccessibilityMissAlternateTextErrorEventListener());
+        this.userAgent.getEventBroadcaster().addEventListener(new AccessibilityMissAlternateTextEventListener());
         initialize();
     }
 
