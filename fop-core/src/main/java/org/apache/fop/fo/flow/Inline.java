@@ -50,6 +50,7 @@ public class Inline extends InlineLevel {
     private boolean blockOrInlineItemFound;
     private boolean canHaveBlockLevelChildren = true;
     private String abbreviation;
+    private String altText;
 
     /**
      * Base constructor
@@ -164,5 +165,9 @@ public class Inline extends InlineLevel {
 
     public String getAbbreviation() {
         return abbreviation;
+    }
+
+    public String getAltText() {
+        return altText;
     }
 }

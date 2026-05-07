@@ -237,7 +237,19 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
     @Override
     public void startInline(Inline inl) {
-        startElement(inl);
+        AttributesImpl attributes = new AttributesImpl();
+        if (!inl.getAbbreviation().equals("")) {
+            addAttribute(attributes, ExtensionElementMapping.URI, "abbreviation",
+                    ExtensionElementMapping.STANDARD_PREFIX, inl.getAbbreviation());
+        }
+
+        String altText = inl.getAltText();
+        if (altText != null && altText.length() > 0) {
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt",
+                    ExtensionElementMapping.STANDARD_PREFIX, altText);
+        }
+
+        startElement(inl, attributes);
     }
 
     @Override
@@ -392,7 +404,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
         // alt-text attribute
         String altText = basicLink.getAltText();
         if (altText != null) {
-            addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt",
                     ExtensionElementMapping.STANDARD_PREFIX, altText);
         }
 
@@ -429,7 +441,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
         // alt-text attribute
         String altText = eg.getAltText();
         if (altText != null) {
-            addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt",
                     ExtensionElementMapping.STANDARD_PREFIX, altText);
         }
 
@@ -458,7 +470,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
         // alt-text attribute
         String altText = ifo.getAltText();
         if (altText != null) {
-            addAttribute(attributes, ExtensionElementMapping.URI, "alt-text",
+            addAttribute(attributes, ExtensionElementMapping.URI, "alt",
                     ExtensionElementMapping.STANDARD_PREFIX, altText);
         }
 
@@ -615,6 +627,22 @@ class StructureTreeEventTrigger extends FOEventHandler {
         String role = node.getCommonAccessibility().getRole();
         if (role != null) {
             addNoNamespaceAttribute(attributes, "role", role);
+        }
+
+        if (node instanceof org.apache.fop.fo.FObj) {
+            org.apache.fop.fo.FObj fobj = (org.apache.fop.fo.FObj) node;
+            Object alt = fobj.getForeignAttributes().get(
+                    new org.apache.xmlgraphics.util.QName(ExtensionElementMapping.URI, "fox", "alt"));
+
+            if (alt == null) {
+                alt = fobj.getForeignAttributes().get(
+                        new org.apache.xmlgraphics.util.QName(ExtensionElementMapping.URI, "alt"));
+            }
+
+            if (alt != null && alt.toString().length() > 0) {
+                addAttribute(attributes, ExtensionElementMapping.URI, "alt",
+                        ExtensionElementMapping.STANDARD_PREFIX, alt.toString());
+            }
         }
     }
 

@@ -160,7 +160,11 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
 
             // get alt-text node
-            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
+            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt");
+
+            if (altTextNode == null) {
+                altTextNode = attributes.getValue("fox:alt");
+            }
 
             // access pdf document
             PDFDocument pdfDoc = structElem.getDocument();
@@ -169,32 +173,24 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
             boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
 
             // check if alt-text node is missing
-            if (altTextNode == null || altTextNode.isEmpty()) {
-                // UAMode enabled
-                if (isPDFUA) {
-                    // check policy
-                    boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
-                    EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
-                    String elemName = structElem.getStructureType().getName().getName();
-                    if (isStrict) {
-                        // --- STRICT: Error (Stops Build) ---
-                        if (broadcaster != null) {
-                            AccessibilityEventProducer.Provider.get(broadcaster)
-                                    .missingAlternateTextError(structElem, elemName);
-                        }
-                    } else {
-                        // --- LAX: Warning Only (Build Continues) ---
-                        if (broadcaster != null) {
-                            AccessibilityEventProducer.Provider.get(broadcaster)
-                                    .missingAlternateText(structElem, elemName);
-                        }
-                        altTextNode = "No alternate text specified";
-                        structElem.put("Alt", altTextNode);
-                    }
-                }
-            } else {
-                // alt-text exists, set it normally
+            if (altTextNode != null && !altTextNode.isEmpty()) {
                 structElem.put("Alt", altTextNode);
+            } else if (isPDFUA) {
+                boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
+                EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
+                String elemName = structElem.getStructureType().getName().getName();
+                if (isStrict) {
+                    if (broadcaster != null) {
+                        AccessibilityEventProducer.Provider.get(broadcaster)
+                                .missingAlternateTextError(structElem, elemName);
+                    }
+                } else {
+                    if (broadcaster != null) {
+                        AccessibilityEventProducer.Provider.get(broadcaster)
+                                .missingAlternateText(structElem, elemName);
+                    }
+                    structElem.put("Alt", "No alternate text specified");
+                }
             }
         }
 
@@ -303,38 +299,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
 
         @Override
         protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-            // get alt-text node
-            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
-            PDFName elemName = structElem.getStructureType().getName();
-
-            // access pdf document
-            PDFDocument pdfDoc = structElem.getDocument();
-
-            // UAMode flag
-            boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
-
-            // check if alt-text node is missing
-            if (altTextNode == null || altTextNode.isEmpty()) {
-                // UAMode enabled
-                if (isPDFUA) {
-                    // check policy
-                    boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
-                    EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
-                    if (broadcaster != null) {
-                        AccessibilityEventProducer aep = AccessibilityEventProducer.Provider.get(broadcaster);
-                        if (isStrict) {
-                            // --- STRICT: Error (Stops Build) ---
-                            aep.missingAlternateTextError(structElem, "Link");
-                        } else {
-                            // --- LAX: Warning Only (Build Continues) ---
-                            aep.missingAlternateText(structElem, "Link");
-                            altTextNode = "No alternate text specified";
-                            structElem.put("Alt", altTextNode);
-                        }
-                    }
-                }
-            }
-            // intentionally do nothing else
+            super.setAttributes(structElem, attributes);
         }
     }
 
