@@ -578,6 +578,10 @@ public class PDFConverter {
             setAttribute(el, "language", pdsElement.getLanguage());
             setAttribute(el, "actualText", pdsElement.getActualText());
             setAttribute(el, "alternateDescription", pdsElement.getAlternateDescription());
+            String contents = pdsElement.getCOSObject().getString(COSName.CONTENTS);
+            if (contents != null) {
+                setAttribute(el, "contents", contents);
+            }
             setAttribute(el, "expandedForm", pdsElement.getExpandedForm());
             setAttribute(el, "title", pdsElement.getTitle());
 

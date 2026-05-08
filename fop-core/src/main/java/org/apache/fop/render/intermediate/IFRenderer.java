@@ -1290,7 +1290,12 @@ public class IFRenderer extends AbstractPathOrientedRenderer {
 
     /** {@inheritDoc} */
     public void renderImage(Image image, Rectangle2D pos) {
+
+        StructureTreeElement structElem =
+                (StructureTreeElement) image.getTrait(Trait.STRUCTURE_TREE_ELEMENT);
+        establishStructureTreeElement(structElem);
         drawImage(image.getURL(), pos, image.getForeignAttributes());
+        resetStructurePointer();
     }
 
     /** {@inheritDoc} */
@@ -1313,6 +1318,9 @@ public class IFRenderer extends AbstractPathOrientedRenderer {
     /** {@inheritDoc} */
     public void renderForeignObject(ForeignObject fo, Rectangle2D pos) {
         endTextObject();
+        StructureTreeElement structElem =
+                (StructureTreeElement) fo.getTrait(Trait.STRUCTURE_TREE_ELEMENT);
+        establishStructureTreeElement(structElem);
         Rectangle posInt = new Rectangle(
                 currentIPPosition + (int)pos.getX(),
                 currentBPPosition + (int)pos.getY(),
@@ -1326,6 +1334,7 @@ public class IFRenderer extends AbstractPathOrientedRenderer {
         } catch (IFException ife) {
             handleIFException(ife);
         }
+        resetStructurePointer();
     }
 
     /** {@inheritDoc} */

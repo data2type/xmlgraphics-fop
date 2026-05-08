@@ -28,6 +28,8 @@ import javax.xml.XMLConstants;
 
 import org.xml.sax.helpers.AttributesImpl;
 
+import org.apache.xmlgraphics.util.QName;
+
 import org.apache.fop.accessibility.StructureTreeElement;
 import org.apache.fop.accessibility.StructureTreeEventHandler;
 import org.apache.fop.fo.FOEventHandler;
@@ -402,8 +404,19 @@ class StructureTreeEventTrigger extends FOEventHandler {
         String localName = basicLink.getLocalName();
 
         // alt-text attribute
-        String altText = basicLink.getAltText();
-        if (altText != null) {
+        String altText = null;
+        Map<org.apache.xmlgraphics.util.QName, String> foreignAttributes = basicLink.getForeignAttributes();
+        if (foreignAttributes != null) {
+            altText = foreignAttributes.get(new QName(
+                    ExtensionElementMapping.URI, "fox", "alt"));
+
+            if (altText == null) {
+                altText = foreignAttributes.get(new QName(
+                        ExtensionElementMapping.URI, null, "alt"));
+            }
+        }
+
+        if (altText != null && !altText.isEmpty()) {
             addAttribute(attributes, ExtensionElementMapping.URI, "alt",
                     ExtensionElementMapping.STANDARD_PREFIX, altText);
         }
@@ -422,7 +435,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
         // pass attributes
         basicLink.setStructureTreeElement(
-                structureTreeEventHandler.startImageNode(localName, attributes,
+                structureTreeEventHandler.startNode(localName, attributes,
                         basicLink.getParent().getStructureTreeElement()));
     }
 
@@ -439,8 +452,18 @@ class StructureTreeEventTrigger extends FOEventHandler {
         String localName = eg.getLocalName();
 
         // alt-text attribute
-        String altText = eg.getAltText();
-        if (altText != null) {
+        String altText = null;
+        Map<org.apache.xmlgraphics.util.QName, String> foreignAttributes = eg.getForeignAttributes();
+        if (foreignAttributes != null) {
+            altText = foreignAttributes.get(new org.apache.xmlgraphics.util.QName(
+                    ExtensionElementMapping.URI, "fox", "alt"));
+            if (altText == null) {
+                altText = foreignAttributes.get(new org.apache.xmlgraphics.util.QName(
+                        ExtensionElementMapping.URI, null, "alt"));
+            }
+        }
+
+        if (altText != null && !altText.isEmpty()) {
             addAttribute(attributes, ExtensionElementMapping.URI, "alt",
                     ExtensionElementMapping.STANDARD_PREFIX, altText);
         }
@@ -469,7 +492,7 @@ class StructureTreeEventTrigger extends FOEventHandler {
 
         // alt-text attribute
         String altText = ifo.getAltText();
-        if (altText != null) {
+        if (altText != null && !altText.isEmpty()) {
             addAttribute(attributes, ExtensionElementMapping.URI, "alt",
                     ExtensionElementMapping.STANDARD_PREFIX, altText);
         }

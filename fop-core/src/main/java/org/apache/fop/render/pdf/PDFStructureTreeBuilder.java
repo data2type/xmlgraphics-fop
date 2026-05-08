@@ -146,7 +146,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                 }
             }
             PDFStructElem structElem = createStructureElement(parent, structureType);
-            setAttributes(structElem, attributes);
+            setAttributes(structElem, attributes, eventBroadcaster);
             addKidToParent(structElem, parent, attributes);
             registerStructureElement(structElem, pdfFactory, attributes);
             return structElem;
@@ -157,8 +157,7 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
             return new PDFStructElem(parent, structureType);
         }
 
-        protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-
+        protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
             // get alt-text node
             String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt");
 
@@ -166,31 +165,9 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                 altTextNode = attributes.getValue("fox:alt");
             }
 
-            // access pdf document
-            PDFDocument pdfDoc = structElem.getDocument();
-
-            // UAMode flag
-            boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
-
             // check if alt-text node is missing
             if (altTextNode != null && !altTextNode.isEmpty()) {
                 structElem.put("Alt", altTextNode);
-            } else if (isPDFUA) {
-                boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
-                EventBroadcaster broadcaster = pdfDoc.getEventBroadcaster();
-                String elemName = structElem.getStructureType().getName().getName();
-                if (isStrict) {
-                    if (broadcaster != null) {
-                        AccessibilityEventProducer.Provider.get(broadcaster)
-                                .missingAlternateTextError(structElem, elemName);
-                    }
-                } else {
-                    if (broadcaster != null) {
-                        AccessibilityEventProducer.Provider.get(broadcaster)
-                                .missingAlternateText(structElem, elemName);
-                    }
-                    structElem.put("Alt", "No alternate text specified");
-                }
             }
         }
 
@@ -253,8 +230,8 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         @Override
-        protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-            super.setAttributes(structElem, attributes);
+        protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
+            super.setAttributes(structElem, attributes, broadcaster);
             String xmlLang = attributes.getValue(XMLConstants.XML_NS_URI, "lang");
             if (xmlLang != null) {
                 Locale locale = LanguageTags.toLocale(xmlLang);
@@ -271,8 +248,8 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         @Override
-        protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-            super.setAttributes(structElem, attributes);
+        protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
+            super.setAttributes(structElem, attributes, broadcaster);
             String text = attributes.getValue(ExtensionElementMapping.URI, "abbreviation");
             if (text != null && !text.equals("")) {
                 structElem.put("E", text);
@@ -287,8 +264,40 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         @Override
-        protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-            super.setAttributes(structElem, attributes);
+        protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
+            // access pdf document
+            PDFDocument pdfDoc = structElem.getDocument();
+
+            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt");
+
+            if (altTextNode == null) {
+                altTextNode = attributes.getValue("fox:alt");
+            }
+
+            // check if alt-text node is missing
+            if (altTextNode != null && !altTextNode.isEmpty()) {
+                structElem.put("Alt", altTextNode);
+            } else {
+                // UAMode flag
+                boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
+                if (isPDFUA) {
+                    boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
+                    String elemName = structElem.getStructureType().getName().getName();
+                    if (isStrict) {
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateTextError(structElem, elemName);
+                        }
+                    } else {
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateText(structElem, elemName);
+                        }
+                        structElem.put("Alt", "No alternate text specified");
+                    }
+                }
+            }
+
         }
     }
 
@@ -298,9 +307,40 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         @Override
-        protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-            super.setAttributes(structElem, attributes);
+        protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
+            PDFDocument pdfDoc = structElem.getDocument();
+            String xmlLang = attributes.getValue(javax.xml.XMLConstants.XML_NS_URI, "lang");
+            if (xmlLang != null) {
+                structElem.setLanguage(org.apache.fop.util.LanguageTags.toLocale(xmlLang));
+            }
+
+            String altText = attributes.getValue(ExtensionElementMapping.URI, "alt");
+            if (altText == null) {
+                altText = attributes.getValue("fox:alt");
+            }
+
+            if (altText != null && !altText.isEmpty()) {
+                structElem.put("Contents", altText);
+            } else {
+                boolean isPDFUA = (pdfDoc != null && pdfDoc.getProfile().getPDFUAMode().isEnabled());
+                if (isPDFUA) {
+                    boolean isStrict = pdfDoc.getProfile().isAccessibilityStrict();
+                    String elemName = structElem.getStructureType().getName().getName();
+                    if (isStrict) {
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateTextError(structElem, elemName);
+                        }
+                    } else {
+                        if (broadcaster != null) {
+                            AccessibilityEventProducer.Provider.get(broadcaster)
+                                    .missingAlternateText(structElem, elemName);
+                        }
+                    }
+                }
+            }
         }
+
     }
 
     private static class TableBuilder extends DefaultStructureElementBuilder {
@@ -351,8 +391,8 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         @Override
-        protected void setAttributes(PDFStructElem structElem, Attributes attributes) {
-            super.setAttributes(structElem, attributes);
+        protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
+            super.setAttributes(structElem, attributes, broadcaster);
             String columnSpan = attributes.getValue("number-columns-spanned");
             if (columnSpan != null) {
                 structElem.setTableAttributeColSpan(Integer.parseInt(columnSpan));

@@ -22,6 +22,7 @@ package org.apache.fop.layoutmgr.inline;
 import org.apache.fop.area.Area;
 import org.apache.fop.area.inline.Image;
 import org.apache.fop.fo.flow.ExternalGraphic;
+import org.apache.fop.layoutmgr.TraitSetter;
 
 
 /**
@@ -44,6 +45,8 @@ public class ExternalGraphicLayoutManager extends AbstractGraphicsLayoutManager 
     protected Area getChildArea() {
         Image im = new Image(((ExternalGraphic) fobj).getSrc());
         im.setChangeBarList(getChangeBarList());
+        TraitSetter.addStructureTreeElement(im,
+                ((ExternalGraphic) fobj).getStructureTreeElement());
         return im;
     }
 
