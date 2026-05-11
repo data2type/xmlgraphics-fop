@@ -44,7 +44,7 @@
                     <!-- 1. External Link with fox:alt -->
                     <fo:block>
                         <fo:basic-link external-destination="http://xmlgraphics.apache.org/fop/"
-                                       fox:alt="FOP Website Home">
+                                       fox:alt-text="FOP Website Home">
                             Apache FOP
                         </fo:basic-link>
                     </fo:block>
@@ -52,7 +52,7 @@
                     <!-- 2. Internal Link with fox:alt -->
                     <fo:block space-before="10mm">
                         <fo:basic-link internal-destination="target-desc"
-                                       fox:alt="Jump to target description">
+                                       fox:alt-text="Jump to target description">
                             Go to target
                         </fo:basic-link>
                     </fo:block>
@@ -60,9 +60,9 @@
                     <!-- 3. Link with Nested Image (Both with fox:alt) -->
                     <fo:block space-before="10mm">
                         <fo:basic-link external-destination="http://example.com"
-                                       fox:alt="Example Link Wrapper">
+                                       fox:alt-text="Example Link Wrapper">
                             <fo:external-graphic src="url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)"
-                                                 fox:alt="Example Image Alt Text"/>
+                                                 fox:alt-text="Example Image Alt Text"/>
                         </fo:basic-link>
                     </fo:block>
 

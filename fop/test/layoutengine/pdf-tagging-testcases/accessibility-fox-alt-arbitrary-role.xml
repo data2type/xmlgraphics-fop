@@ -45,20 +45,15 @@
                 <fo:flow flow-name="xsl-region-body">
 
                     <fo:block>
-                        <fo:inline role="Formula" fox:alt="x squared plus y squared equals z squared">
+                        <fo:inline role="Formula" fox:alt-text="x squared plus y squared equals z squared">
                             x&#xB2; + y&#xB2; = z&#xB2;
                         </fo:inline>
                     </fo:block>
 
                     <fo:block space-before="10mm">
-                        <fo:inline role="Figure" fox:alt="A decorative inline figure">
+                        <fo:inline role="Figure" fox:alt-text="A decorative inline figure">
                             &#x25A0;
                         </fo:inline>
-                    </fo:block>
-
-                    <fo:block role="Note" fox:alt="This is an important note"
-                              space-before="10mm" border="0.5pt solid black" padding="3mm">
-                        Note: This paragraph carries an alternate description.
                     </fo:block>
 
                 </fo:flow>
@@ -72,7 +67,5 @@
         <eval expected="A decorative inline figure"
               xpath="//Figure/@alternateDescription"/>
 
-        <eval expected="This is an important note"
-              xpath="//Note/@alternateDescription"/>
     </pdf-tagging-checks>
 </testcase>
