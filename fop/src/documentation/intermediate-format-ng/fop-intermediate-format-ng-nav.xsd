@@ -92,6 +92,7 @@
     <xs:complexType>
       <xs:attributeGroup ref="nav:idAtts"/>
       <xs:attribute name="uri" type="xs:anyURI" use="required"/>
+      <xs:attribute name="alt-text" type="xs:string"/>
       <xs:attribute name="show-destination" use="optional" default="replace">
         <xs:simpleType>
           <xs:restriction base="xs:string">
