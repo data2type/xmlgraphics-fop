@@ -158,17 +158,6 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
         }
 
         protected void setAttributes(PDFStructElem structElem, Attributes attributes, EventBroadcaster broadcaster) {
-            // get alt-text node
-            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt");
-
-            if (altTextNode == null) {
-                altTextNode = attributes.getValue("fox:alt");
-            }
-
-            // check if alt-text node is missing
-            if (altTextNode != null && !altTextNode.isEmpty()) {
-                structElem.put("Alt", altTextNode);
-            }
         }
 
         protected void addKidToParent(PDFStructElem kid, StructureHierarchyMember parent,
@@ -254,6 +243,16 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
             if (text != null && !text.equals("")) {
                 structElem.put("E", text);
             }
+            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
+
+            if (altTextNode == null) {
+                altTextNode = attributes.getValue("fox:alt-text");
+            }
+
+            // check if alt-text node is missing
+            if (altTextNode != null && !altTextNode.isEmpty()) {
+                structElem.put("Alt", altTextNode);
+            }
         }
     }
 
@@ -268,10 +267,10 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
             // access pdf document
             PDFDocument pdfDoc = structElem.getDocument();
 
-            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt");
+            String altTextNode = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
 
             if (altTextNode == null) {
-                altTextNode = attributes.getValue("fox:alt");
+                altTextNode = attributes.getValue("fox:alt-text");
             }
 
             // check if alt-text node is missing
@@ -314,9 +313,9 @@ public class PDFStructureTreeBuilder implements StructureTreeEventHandler {
                 structElem.setLanguage(org.apache.fop.util.LanguageTags.toLocale(xmlLang));
             }
 
-            String altText = attributes.getValue(ExtensionElementMapping.URI, "alt");
+            String altText = attributes.getValue(ExtensionElementMapping.URI, "alt-text");
             if (altText == null) {
-                altText = attributes.getValue("fox:alt");
+                altText = attributes.getValue("fox:alt-text");
             }
 
             if (altText != null && !altText.isEmpty()) {

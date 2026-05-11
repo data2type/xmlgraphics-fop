@@ -94,8 +94,8 @@ public class BasicLink extends InlineLevel implements StructureTreeElementHolder
             // slightly stronger than spec "should be specified"
             getFOValidationEventProducer().missingLinkDestination(this, getName(), locator);
         }
+        altText = pList.get(PR_X_ALT_TEXT).getString();
         if (getUserAgent().isAccessibilityEnabled()) {
-            altText = pList.get(PR_X_ALT_TEXT).getString();
             if (altText.equals("") && getUserAgent().isPdfUAEnabled()) {
                 if (getUserAgent().isAccessibilityStrict()) {
                     getFOValidationEventProducer().altTextMissingError(this, getName(), getLocator());

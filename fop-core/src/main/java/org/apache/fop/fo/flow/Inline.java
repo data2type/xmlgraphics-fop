@@ -68,6 +68,7 @@ public class Inline extends InlineLevel {
         alignmentBaseline = pList.get(PR_ALIGNMENT_BASELINE).getEnum();
         baselineShift = pList.get(PR_BASELINE_SHIFT).getLength();
         dominantBaseline = pList.get(PR_DOMINANT_BASELINE).getEnum();
+        altText = pList.get(PR_X_ALT_TEXT).getString();
         if (getUserAgent().isAccessibilityEnabled()) {
             abbreviation = pList.get(PR_X_ABBREVIATION).getString();
         }
